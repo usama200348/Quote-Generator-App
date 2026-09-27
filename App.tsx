@@ -1,15 +1,14 @@
+import 'react-native-url-polyfill/auto';
+import Toast from 'react-native-toast-message';
 import React from 'react';
-import {View} from 'react-native';
-import HomeScreen from './src/screens/HomeScreen';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import AppNavigator from './src/navigation/AppNavigator';
 
-function App() {
+export default function App() {
   return (
-    <View>
-<HomeScreen/>
-    </View>
+    <SafeAreaProvider>
+      <AppNavigator />
+<Toast />
+    </SafeAreaProvider>
   );
 }
-
-
-
-export default App;
