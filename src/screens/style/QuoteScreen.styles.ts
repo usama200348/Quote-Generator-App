@@ -259,9 +259,6 @@ const styles = StyleSheet.create({
 
   tabPressable: {
     flex: 1,
-    borderRadius: 20,
-    // Clipping only on Android (for ripple). On iOS it would cut off the icon glow.
-    overflow: Platform.OS === 'android' ? 'hidden' : 'visible',
   },
 
   tabItem: {
@@ -271,28 +268,30 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
 
-  tabItemActive: {
+  // Soft highlight behind the active tab (fades in)
+  tabPill: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: 20,
     backgroundColor: 'rgba(22, 115, 63, 0.16)',
   },
 
-  tabIcon: {
+  tabIconWrap: {
     width: 32,
     height: 32,
-    lineHeight: 32,
     marginBottom: 3,
-    borderRadius: 16,
-    textAlign: 'center',
-    textAlignVertical: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
-  tabIconActive: {
+  // Round green bubble (scales in behind the icon)
+  tabIconBg: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: 16,
     backgroundColor: COLORS.accent,
-    color: COLORS.white,
     shadowColor: COLORS.accent,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.5,
     shadowRadius: 8,
-    elevation: 4,
   },
 
   tabLabel: {

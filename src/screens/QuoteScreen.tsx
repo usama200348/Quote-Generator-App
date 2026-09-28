@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
@@ -21,6 +21,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useQuoteState } from '../hooks/useQuoteState';
+import { Room } from '../types';
 import { getDefaultRate } from '../lib/roomRates';
 import styles from './style/QuoteScreen.styles';
 
@@ -97,11 +98,11 @@ const TABS: {
   number: string;
   icon: IconName;
 }[] = [
-  { key: 'stay', label: 'Stay', number: '01', icon: 'calendar-month-outline' },
-  { key: 'rooms', label: 'Rooms', number: '02', icon: 'bed-outline' },
-  { key: 'pricing', label: 'Pricing', number: '03', icon: 'cash-multiple' },
-  { key: 'quote', label: 'Quote', number: '04', icon: 'file-document-outline' },
-];
+    { key: 'stay', label: 'Stay', number: '01', icon: 'calendar-month-outline' },
+    { key: 'rooms', label: 'Rooms', number: '02', icon: 'bed-outline' },
+    { key: 'pricing', label: 'Pricing', number: '03', icon: 'cash-multiple' },
+    { key: 'quote', label: 'Quote', number: '04', icon: 'file-document-outline' },
+  ];
 
 const PRESET_ROOMS = ['Standard Room', 'Deluxe Room', 'Suite', 'Family Room', 'Executive Room'];
 const ROOMS_PAGE_SIZE = 3;
@@ -112,7 +113,7 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-function AnimatedButton({
+const AnimatedButton = React.memo(function AnimatedButton({
   children,
   onPress,
   style,
@@ -162,13 +163,13 @@ function AnimatedButton({
       {children}
     </AnimatedPressable>
   );
-}
+});
 
-function SectionTitle({ children }: { children: string }) {
+const SectionTitle = React.memo(function SectionTitle({ children }: { children: string }) {
   return <Text style={styles.sectionLabel}>{children}</Text>;
-}
+});
 
-function Card({
+const Card = React.memo(function Card({
   children,
   index = 0,
 }: {
@@ -180,12 +181,12 @@ function Card({
   const scale = useRef(new Animated.Value(0.98)).current;
 
   useEffect(() => {
-    const delay = index * 50;
+    const delay = Math.min(index * 40, 200);
 
-    Animated.parallel([
+    const anim = Animated.parallel([
       Animated.timing(opacity, {
         toValue: 1,
-        duration: 380,
+        duration: 340,
         delay,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
@@ -204,7 +205,13 @@ function Card({
         friction: 8,
         useNativeDriver: true,
       }),
-    ]).start();
+    ]);
+
+    anim.start();
+
+    return () => {
+      anim.stop();
+    };
   }, [index, opacity, scale, translateY]);
 
   return (
@@ -220,15 +227,15 @@ function Card({
       {children}
     </Animated.View>
   );
-}
+});
 
-function AnimatedLogo() {
+const AnimatedLogo = React.memo(function AnimatedLogo() {
   const scale = useRef(new Animated.Value(0.7)).current;
   const rotate = useRef(new Animated.Value(-1)).current;
   const float = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.parallel([
+    const introAnim = Animated.parallel([
       Animated.spring(scale, {
         toValue: 1,
         tension: 60,
@@ -241,23 +248,32 @@ function AnimatedLogo() {
         easing: Easing.out(Easing.back(1.5)),
         useNativeDriver: true,
       }),
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(float, {
-            toValue: 1,
-            duration: 1800,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(float, {
-            toValue: 0,
-            duration: 1800,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-        ]),
-      ),
-    ]).start();
+    ]);
+
+    const loopAnim = Animated.loop(
+      Animated.sequence([
+        Animated.timing(float, {
+          toValue: 1,
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(float, {
+          toValue: 0,
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+
+    introAnim.start();
+    loopAnim.start();
+
+    return () => {
+      introAnim.stop();
+      loopAnim.stop();
+    };
   }, [float, rotate, scale]);
 
   const rotateY = rotate.interpolate({
@@ -287,9 +303,9 @@ function AnimatedLogo() {
       <Text style={styles.logoText}>★</Text>
     </Animated.View>
   );
-}
+});
 
-function AnimatedHeading() {
+const AnimatedHeading = React.memo(function AnimatedHeading() {
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(14)).current;
 
@@ -327,9 +343,9 @@ function AnimatedHeading() {
       </Text>
     </Animated.View>
   );
-}
+});
 
-function StepProgressBar({
+const StepProgressBar = React.memo(function StepProgressBar({
   activeTab,
   onTabPress,
 }: {
@@ -399,9 +415,9 @@ function StepProgressBar({
       })}
     </View>
   );
-}
+});
 
-function Counter({
+const Counter = React.memo(function Counter({
   label,
   value,
   min,
@@ -452,7 +468,7 @@ function Counter({
       </View>
     </View>
   );
-}
+});
 
 function formatMoney(amount: number, currency: string) {
   const currencyData = CURRENCIES.find(item => item.code === currency);
@@ -460,16 +476,98 @@ function formatMoney(amount: number, currency: string) {
   return `${symbol}${amount.toFixed(2)}`;
 }
 
-function SummaryRow({ label, value }: { label: string; value: string }) {
+const SummaryRow = React.memo(function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.summaryRow}>
       <Text style={styles.summaryRowLabel}>{label}</Text>
       <Text style={styles.summaryRowValue}>{value}</Text>
     </View>
   );
-}
+});
 
-function TabBar({
+const TabButton = React.memo(function TabButton({
+  tab,
+  selected,
+  onPress,
+}: {
+  tab: (typeof TABS)[number];
+  selected: boolean;
+  onPress: () => void;
+}) {
+  const press = useRef(new Animated.Value(1)).current;
+  const active = useRef(new Animated.Value(selected ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.spring(active, {
+      toValue: selected ? 1 : 0,
+      speed: 18,
+      bounciness: 8,
+      useNativeDriver: true,
+    }).start();
+  }, [selected, active]);
+
+  const animatePress = (toValue: number) =>
+    Animated.spring(press, {
+      toValue,
+      speed: 40,
+      bounciness: 6,
+      useNativeDriver: true,
+    }).start();
+
+  const bubbleScale = active.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.6, 1],
+  });
+
+  const lift = active.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -1],
+  });
+
+  return (
+    <Pressable
+      onPress={onPress}
+      onPressIn={() => animatePress(0.9)}
+      onPressOut={() => animatePress(1)}
+      style={styles.tabPressable}
+      accessibilityRole="tab"
+      accessibilityState={{ selected }}
+      accessibilityLabel={`${tab.label} tab`}
+      hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
+    >
+      <Animated.View
+        style={[styles.tabItem, { transform: [{ scale: press }] }]}
+      >
+        <Animated.View style={[styles.tabPill, { opacity: active }]} />
+
+        <Animated.View
+          style={[styles.tabIconWrap, { transform: [{ translateY: lift }] }]}
+        >
+          <Animated.View
+            style={[
+              styles.tabIconBg,
+              { opacity: active, transform: [{ scale: bubbleScale }] },
+            ]}
+          />
+          <Icon
+            name={tab.icon}
+            size={18}
+            color={selected ? '#FFFFFF' : '#9BA8A0'}
+          />
+        </Animated.View>
+
+        <Text
+          style={[styles.tabLabel, selected && styles.tabLabelActive]}
+          numberOfLines={1}
+        >
+          {tab.label}
+        </Text>
+      </Animated.View>
+    </Pressable>
+  );
+});
+
+const TabBar = React.memo(function TabBar({
   activeTab,
   onTabPress,
 }: {
@@ -478,55 +576,17 @@ function TabBar({
 }) {
   return (
     <View style={styles.tabBar}>
-      {TABS.map(tab => {
-        const selected = activeTab === tab.key;
-
-        return (
-          <Pressable
-            key={tab.key}
-            onPress={() => onTabPress(tab.key)}
-            style={styles.tabPressable}
-            android_ripple={{
-              color: 'rgba(22, 115, 63, 0.15)',
-              borderless: false,
-            }}
-            accessibilityRole="tab"
-            accessibilityState={{ selected }}
-            accessibilityLabel={`${tab.label} tab`}
-            hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
-          >
-            <View
-              style={[
-                styles.tabItem,
-                selected && styles.tabItemActive,
-              ]}
-            >
-              <Icon
-                name={tab.icon}
-                size={18}
-                color={selected ? '#FFFFFF' : '#8A9790'}
-                style={[
-                  styles.tabIcon,
-                  selected && styles.tabIconActive,
-                ]}
-              />
-
-              <Text
-                style={[
-                  styles.tabLabel,
-                  selected && styles.tabLabelActive,
-                ]}
-                numberOfLines={1}
-              >
-                {tab.label}
-              </Text>
-            </View>
-          </Pressable>
-        );
-      })}
+      {TABS.map(tab => (
+        <TabButton
+          key={tab.key}
+          tab={tab}
+          selected={activeTab === tab.key}
+          onPress={() => onTabPress(tab.key)}
+        />
+      ))}
     </View>
   );
-}
+});
 
 function startOfDay(date: Date) {
   const result = new Date(date);
@@ -724,10 +784,10 @@ function CalendarModal({
               <Text style={styles.calendarSelectedText}>
                 {selectedDate
                   ? selectedDate.toLocaleDateString('en-US', {
-                      weekday: 'short',
-                      month: 'short',
-                      day: 'numeric',
-                    })
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                  })
                   : 'Choose a date'}
               </Text>
             </View>
@@ -830,6 +890,286 @@ function CalendarModal({
   );
 }
 
+type RoomGuestValues = { adults: number; children: number };
+
+interface RoomCardItemProps {
+  room: {
+    id: string;
+    name: string;
+    rate: number;
+    quantity: number;
+    pricingType: 'perRoom' | 'perGuest';
+    adults?: number;
+    children?: number;
+  };
+  index: number;
+  displayRoomNumber: number;
+  roomGuestData: RoomGuestValues;
+  currencySymbol: string;
+  totalRoomsCount: number;
+  onUpdateRoom: (id: string, updates: any) => void;
+  onRemoveRoom: (id: string) => void;
+  onUpdateRoomGuestCount: (
+    room: any,
+    field: keyof RoomGuestValues,
+    value: number,
+  ) => void;
+}
+
+const RoomCardItem = React.memo(function RoomCardItem({
+  room,
+  index,
+  displayRoomNumber,
+  roomGuestData,
+  currencySymbol,
+  totalRoomsCount,
+  onUpdateRoom,
+  onRemoveRoom,
+  onUpdateRoomGuestCount,
+}: RoomCardItemProps) {
+  return (
+    <Card index={index}>
+      <View style={styles.roomBox}>
+        <View style={styles.roomHeader}>
+          <View style={styles.roomNumber}>
+            <Text style={styles.roomNumberText}>
+              {String(displayRoomNumber).padStart(2, '0')}
+            </Text>
+          </View>
+
+          <View style={styles.roomHeaderTitle}>
+            <Text style={styles.roomTitle}>Room {displayRoomNumber}</Text>
+            <Text style={styles.roomSubtitle}>Accommodation</Text>
+          </View>
+
+          {totalRoomsCount > 1 && (
+            <AnimatedButton
+              onPress={() => onRemoveRoom(room.id)}
+              style={styles.deleteButton}
+            >
+              <Icon name="trash-can-outline" size={17} color="#DC2626" />
+              <Text style={styles.deleteText}>Delete</Text>
+            </AnimatedButton>
+          )}
+        </View>
+
+        <View style={styles.twoColumns}>
+          <View style={styles.halfColumn}>
+            <Text style={styles.fieldLabel}>Room Type</Text>
+            <TextInput
+              value={room.name}
+              onChangeText={value => onUpdateRoom(room.id, { name: value })}
+              placeholder="e.g. Deluxe Room"
+              placeholderTextColor="#9AA6A0"
+              style={styles.input}
+            />
+          </View>
+
+          <View style={styles.halfColumn}>
+            <Text style={styles.fieldLabel}>Nightly Rate</Text>
+            <View style={styles.rateInputContainer}>
+              <Text style={styles.currencyPrefix}>{currencySymbol}</Text>
+              <TextInput
+                value={room.rate ? String(room.rate) : ''}
+                keyboardType="decimal-pad"
+                onChangeText={value =>
+                  onUpdateRoom(room.id, { rate: Number(value) || 0 })
+                }
+                placeholder="0"
+                placeholderTextColor="#9AA6A0"
+                style={styles.rateTextInput}
+              />
+            </View>
+          </View>
+        </View>
+
+        {/* Quick preset room suggestions */}
+        <View style={styles.quickRoomChips}>
+          {PRESET_ROOMS.map(preset => {
+            const isMatch = room.name.toLowerCase() === preset.toLowerCase();
+            return (
+              <Pressable
+                key={preset}
+                onPress={() => {
+                  const defaultRate = getDefaultRate(preset);
+                  onUpdateRoom(room.id, {
+                    name: preset,
+                    rate: room.rate === 0 || room.rate === 100 ? defaultRate : room.rate,
+                  });
+                }}
+                style={[
+                  styles.quickRoomChip,
+                  isMatch && styles.quickRoomChipActive,
+                ]}
+                hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+              >
+                <Text
+                  style={[
+                    styles.quickRoomChipText,
+                    isMatch && styles.quickRoomChipTextActive,
+                  ]}
+                >
+                  {preset.replace(' Room', '')}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        <View style={styles.roomGuestHeader}>
+          <View style={styles.roomGuestHeaderText}>
+            <Text style={styles.fieldLabel}>Guests in this room</Text>
+            <Text style={styles.roomGuestHint}>
+              Set the guest allocation for this room
+            </Text>
+          </View>
+
+          <View style={styles.roomGuestBadge}>
+            <Icon name="account-group-outline" size={14} color="#16733F" />
+            <Text style={styles.roomGuestBadgeText}>
+              {roomGuestData.adults + roomGuestData.children}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.roomGuestRow}>
+          <View style={styles.roomGuestCounter}>
+            <View style={styles.roomGuestLabelWrap}>
+              <Icon name="account-outline" size={17} color="#55655D" />
+              <Text style={styles.roomGuestLabel}>Adults</Text>
+            </View>
+
+            <View style={styles.roomGuestControls}>
+              <AnimatedButton
+                onPress={() =>
+                  onUpdateRoomGuestCount(
+                    room,
+                    'adults',
+                    roomGuestData.adults - 1,
+                  )
+                }
+                disabled={roomGuestData.adults <= 1}
+                style={[
+                  styles.roomGuestButton,
+                  roomGuestData.adults <= 1 && styles.roomGuestButtonDisabled,
+                ]}
+              >
+                <Text style={styles.roomGuestButtonText}>−</Text>
+              </AnimatedButton>
+
+              <Text style={styles.roomGuestValue}>{roomGuestData.adults}</Text>
+
+              <AnimatedButton
+                onPress={() =>
+                  onUpdateRoomGuestCount(
+                    room,
+                    'adults',
+                    roomGuestData.adults + 1,
+                  )
+                }
+                disabled={roomGuestData.adults >= 20}
+                style={[
+                  styles.roomGuestButton,
+                  roomGuestData.adults >= 20 && styles.roomGuestButtonDisabled,
+                ]}
+              >
+                <Text style={styles.roomGuestButtonText}>+</Text>
+              </AnimatedButton>
+            </View>
+          </View>
+
+          <View style={styles.roomGuestCounter}>
+            <View style={styles.roomGuestLabelWrap}>
+              <Icon name="account-child-outline" size={17} color="#55655D" />
+              <Text style={styles.roomGuestLabel}>Children</Text>
+            </View>
+
+            <View style={styles.roomGuestControls}>
+              <AnimatedButton
+                onPress={() =>
+                  onUpdateRoomGuestCount(
+                    room,
+                    'children',
+                    roomGuestData.children - 1,
+                  )
+                }
+                disabled={roomGuestData.children <= 0}
+                style={[
+                  styles.roomGuestButton,
+                  roomGuestData.children <= 0 && styles.roomGuestButtonDisabled,
+                ]}
+              >
+                <Text style={styles.roomGuestButtonText}>−</Text>
+              </AnimatedButton>
+
+              <Text style={styles.roomGuestValue}>
+                {roomGuestData.children}
+              </Text>
+
+              <AnimatedButton
+                onPress={() =>
+                  onUpdateRoomGuestCount(
+                    room,
+                    'children',
+                    roomGuestData.children + 1,
+                  )
+                }
+                disabled={roomGuestData.children >= 20}
+                style={[
+                  styles.roomGuestButton,
+                  roomGuestData.children >= 20 && styles.roomGuestButtonDisabled,
+                ]}
+              >
+                <Text style={styles.roomGuestButtonText}>+</Text>
+              </AnimatedButton>
+            </View>
+          </View>
+        </View>
+
+        <Text style={[styles.fieldLabel, styles.rateAppliesLabel]}>
+          Rate applies
+        </Text>
+
+        <View style={styles.toggleRow}>
+          <AnimatedButton
+            onPress={() => onUpdateRoom(room.id, { pricingType: 'perRoom' })}
+            style={[
+              styles.toggleButton,
+              room.pricingType === 'perRoom' && styles.toggleActive,
+            ]}
+          >
+            <Text
+              style={[
+                styles.toggleText,
+                room.pricingType === 'perRoom' && styles.toggleActiveText,
+              ]}
+            >
+              Per Room
+            </Text>
+          </AnimatedButton>
+
+          <AnimatedButton
+            onPress={() => onUpdateRoom(room.id, { pricingType: 'perGuest' })}
+            style={[
+              styles.toggleButton,
+              room.pricingType === 'perGuest' && styles.toggleActive,
+            ]}
+          >
+            <Text
+              style={[
+                styles.toggleText,
+                room.pricingType === 'perGuest' && styles.toggleActiveText,
+              ]}
+            >
+              Per Guest
+            </Text>
+          </AnimatedButton>
+        </View>
+      </View>
+    </Card>
+  );
+});
+
 export default function QuoteScreen() {
   const {
     quote,
@@ -894,7 +1234,6 @@ export default function QuoteScreen() {
   const hasMoreRooms = visibleRoomCount < quote.rooms.length;
   const totalGuests = quote.guests.adults + quote.guests.children;
 
-  type RoomGuestValues = { adults: number; children: number };
   const [roomGuests, setRoomGuests] = useState<Record<string, RoomGuestValues>>({});
 
   useEffect(() => {
@@ -924,87 +1263,107 @@ export default function QuoteScreen() {
     });
   }, [quote.rooms]);
 
-  const getRoomGuests = (room: (typeof quote.rooms)[number]): RoomGuestValues => {
-    const roomData = room as typeof room & { adults?: number; children?: number };
-    return (
-      roomGuests[room.id] ?? {
-        adults: roomData.adults ?? 1,
-        children: roomData.children ?? 0,
-      }
-    );
-  };
+  const getRoomGuests = useCallback(
+    (room: Room): RoomGuestValues => {
+      const roomData = room as Room & { adults?: number; children?: number };
+      return (
+        roomGuests[room.id] ?? {
+          adults: roomData.adults ?? 1,
+          children: roomData.children ?? 0,
+        }
+      );
+    },
+    [roomGuests],
+  );
 
-  const updateRoomGuestCount = (
-    room: (typeof quote.rooms)[number],
-    field: keyof RoomGuestValues,
-    value: number,
-  ) => {
-    const nextValue = Math.max(0, value);
+  const updateRoomGuestCount = useCallback(
+    (
+      room: Room,
+      field: keyof RoomGuestValues,
+      value: number,
+    ) => {
+      const nextValue = Math.max(0, value);
 
-    setRoomGuests(previous => ({
-      ...previous,
-      [room.id]: {
-        ...getRoomGuests(room),
-        [field]: nextValue,
-      },
-    }));
+      setRoomGuests(previous => {
+        const currentRoomGuests = previous[room.id] ?? {
+          adults: (room as any).adults ?? 1,
+          children: (room as any).children ?? 0,
+        };
+        if (currentRoomGuests[field] === nextValue) return previous;
 
-    updateRoom(room.id, {
-      [field]: nextValue,
-    } as any);
-  };
+        return {
+          ...previous,
+          [room.id]: {
+            ...currentRoomGuests,
+            [field]: nextValue,
+          },
+        };
+      });
 
-  const buildRoomGuestAllocation = (
-    adults: number,
-    children: number,
-    allRooms: typeof quote.rooms,
-  ): Record<string, RoomGuestValues> => {
-    const allocation: Record<string, RoomGuestValues> = {};
-    let remainingAdults = Math.max(0, adults);
-    let remainingChildren = Math.max(0, children);
-
-    allRooms.forEach((room, index) => {
-      const roomsLeft = allRooms.length - index;
-      const roomAdults =
-        roomsLeft > 0
-          ? Math.floor(remainingAdults / roomsLeft) +
-            (remainingAdults % roomsLeft > 0 ? 1 : 0)
-          : 0;
-      const roomChildren =
-        roomsLeft > 0
-          ? Math.floor(remainingChildren / roomsLeft) +
-            (remainingChildren % roomsLeft > 0 ? 1 : 0)
-          : 0;
-
-      allocation[room.id] = {
-        adults: roomAdults,
-        children: roomChildren,
-      };
-
-      remainingAdults -= roomAdults;
-      remainingChildren -= roomChildren;
-    });
-
-    return allocation;
-  };
-
-  const syncRoomGuestsToQuoteGuests = (
-    adults: number,
-    children: number,
-    allRooms = quote.rooms,
-  ) => {
-    const allocation = buildRoomGuestAllocation(adults, children, allRooms);
-    setRoomGuests(allocation);
-
-    allRooms.forEach(room => {
-      const guests = allocation[room.id];
-      if (!guests) return;
       updateRoom(room.id, {
-        adults: guests.adults,
-        children: guests.children,
+        [field]: nextValue,
       } as any);
-    });
-  };
+    },
+    [updateRoom],
+  );
+
+  const buildRoomGuestAllocation = useCallback(
+    (
+      adults: number,
+      children: number,
+      allRooms: Room[],
+    ): Record<string, RoomGuestValues> => {
+      const allocation: Record<string, RoomGuestValues> = {};
+      let remainingAdults = Math.max(0, adults);
+      let remainingChildren = Math.max(0, children);
+
+      allRooms.forEach((room, index) => {
+        const roomsLeft = allRooms.length - index;
+        const roomAdults =
+          roomsLeft > 0
+            ? Math.floor(remainingAdults / roomsLeft) +
+            (remainingAdults % roomsLeft > 0 ? 1 : 0)
+            : 0;
+        const roomChildren =
+          roomsLeft > 0
+            ? Math.floor(remainingChildren / roomsLeft) +
+            (remainingChildren % roomsLeft > 0 ? 1 : 0)
+            : 0;
+
+        allocation[room.id] = {
+          adults: roomAdults,
+          children: roomChildren,
+        };
+
+        remainingAdults -= roomAdults;
+        remainingChildren -= roomChildren;
+      });
+
+      return allocation;
+    },
+    [],
+  );
+
+  const syncRoomGuestsToQuoteGuests = useCallback(
+    (
+      adults: number,
+      children: number,
+      allRooms = quote.rooms,
+    ) => {
+      const allocation = buildRoomGuestAllocation(adults, children, allRooms);
+      setRoomGuests(allocation);
+
+      allRooms.forEach(room => {
+        const guests = allocation[room.id];
+        if (!guests) return;
+        updateRoom(room.id, {
+          adults: guests.adults,
+          children: guests.children,
+        } as any);
+      });
+    },
+    [buildRoomGuestAllocation, quote.rooms, updateRoom],
+  );
 
   const previousRoomCountRef = useRef(quote.rooms.length);
 
@@ -1065,30 +1424,33 @@ export default function QuoteScreen() {
     });
   };
 
-  const handleTabPress = (tab: TabKey) => {
-    if (tab === activeTab) return;
+  const handleTabPress = useCallback(
+    (tab: TabKey) => {
+      if (tab === activeTab) return;
 
-    const currentIndex = TABS.findIndex(item => item.key === activeTab);
-    const targetIndex = TABS.findIndex(item => item.key === tab);
+      const currentIndex = TABS.findIndex(item => item.key === activeTab);
+      const targetIndex = TABS.findIndex(item => item.key === tab);
 
-    if (activeTab === 'stay' && targetIndex > currentIndex && !datesSelected) {
-      showDateRequiredToast();
-      return;
-    }
+      if (activeTab === 'stay' && targetIndex > currentIndex && !datesSelected) {
+        showDateRequiredToast();
+        return;
+      }
 
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setActiveTab(tab);
-  };
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setActiveTab(tab);
+    },
+    [activeTab, datesSelected],
+  );
 
-  const openCalendar = (field: 'checkIn' | 'checkOut') => {
+  const openCalendar = useCallback((field: 'checkIn' | 'checkOut') => {
     setCalendarField(field);
     setCalendarVisible(true);
-  };
+  }, []);
 
-  const closeCalendar = () => {
+  const closeCalendar = useCallback(() => {
     setCalendarVisible(false);
     setCalendarField(null);
-  };
+  }, []);
 
   const handleCalendarSelect = (selected: Date) => {
     const formattedDate = formatISODate(selected);
@@ -1131,7 +1493,7 @@ export default function QuoteScreen() {
     closeCalendar();
   };
 
-  const handleAddRoom = () => {
+  const handleAddRoom = useCallback(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     addRoom();
     setVisibleRoomCount(current => Math.min(current + 1, quote.rooms.length + 1));
@@ -1144,7 +1506,7 @@ export default function QuoteScreen() {
       visibilityTime: 2200,
       topOffset: 60,
     });
-  };
+  }, [addRoom, quote.rooms.length]);
 
   const handleLoadMoreRooms = () => {
     if (isLoadingMoreRooms || !hasMoreRooms) return;
@@ -1188,12 +1550,12 @@ export default function QuoteScreen() {
     });
   };
 
-  const selectCurrency = (currency: string) => {
+  const selectCurrency = useCallback((currency: string) => {
     setTargetCurrency(currency);
     setCurrencyModal(false);
-  };
+  }, []);
 
-  const generateMessage = () => {
+  const message = useMemo(() => {
     if (!datesSelected || finalTotal <= 0) {
       return 'Fill in dates and room details to preview your quote message...';
     }
@@ -1228,11 +1590,20 @@ export default function QuoteScreen() {
       `${formatMoney(finalTotal, quote.currency.code)} ` +
       `(~${formatMoney(convertedTotal, targetCurrency)}). Let us know if you'd like to book!`
     );
-  };
+  }, [
+    datesSelected,
+    finalTotal,
+    quote.checkIn,
+    quote.checkOut,
+    quote.currency.code,
+    tone,
+    totalNights,
+    totalGuests,
+    convertedTotal,
+    targetCurrency,
+  ]);
 
-  const message = generateMessage();
-
-  const copyMessage = () => {
+  const copyMessage = useCallback(() => {
     if (!datesSelected || finalTotal <= 0) {
       Toast.show({
         type: 'error',
@@ -1253,9 +1624,9 @@ export default function QuoteScreen() {
       position: 'bottom',
       visibilityTime: 2000,
     });
-  };
+  }, [datesSelected, finalTotal, message]);
 
-  const openWhatsApp = () => {
+  const openWhatsApp = useCallback(() => {
     if (!datesSelected || finalTotal <= 0) {
       Toast.show({
         type: 'error',
@@ -1279,9 +1650,9 @@ export default function QuoteScreen() {
         topOffset: 60,
       });
     });
-  };
+  }, [datesSelected, finalTotal, message]);
 
-  const openEmail = () => {
+  const openEmail = useCallback(() => {
     if (!datesSelected || finalTotal <= 0) {
       Toast.show({
         type: 'error',
@@ -1308,9 +1679,9 @@ export default function QuoteScreen() {
         topOffset: 60,
       });
     });
-  };
+  }, [datesSelected, finalTotal, message]);
 
-  const goNext = () => {
+  const goNext = useCallback(() => {
     if (activeTab === 'stay') {
       if (!datesSelected) {
         showDateRequiredToast();
@@ -1331,9 +1702,9 @@ export default function QuoteScreen() {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setActiveTab('quote');
     }
-  };
+  }, [activeTab, datesSelected]);
 
-  const goBack = () => {
+  const goBack = useCallback(() => {
     if (activeTab === 'rooms') {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setActiveTab('stay');
@@ -1350,7 +1721,7 @@ export default function QuoteScreen() {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setActiveTab('pricing');
     }
-  };
+  }, [activeTab]);
 
   const renderStayTab = () => (
     <>
@@ -1455,300 +1826,103 @@ export default function QuoteScreen() {
     </>
   );
 
-  const renderRoomsHeader = () => (
-    <Card index={0}>
-      <View style={styles.sectionHeaderRow}>
-        <View style={styles.sectionHeaderContent}>
-          <SectionTitle>ACCOMMODATION & RATES</SectionTitle>
-          <Text style={styles.sectionDescription}>
-            Configure rooms, rates, and guest allocation
-          </Text>
-        </View>
-
-        <AnimatedButton onPress={handleAddRoom} style={styles.addRoomButton}>
-          <Icon name="plus" size={16} color="#FFFFFF" />
-          <Text style={styles.addRoomText}>Add Room</Text>
-        </AnimatedButton>
-      </View>
-    </Card>
-  );
-
-  const renderRoomItem = ({
-    item: room,
-    index,
-  }: {
-    item: (typeof quote.rooms)[number];
-    index: number;
-  }) => {
-    const displayRoomNumber = roomNumbersRef.current[room.id] ?? index + 1;
-    const roomGuestData = getRoomGuests(room);
-
-    return (
-      <Card index={index}>
-        <View style={styles.roomBox}>
-          <View style={styles.roomHeader}>
-            <View style={styles.roomNumber}>
-              <Text style={styles.roomNumberText}>
-                {String(displayRoomNumber).padStart(2, '0')}
-              </Text>
-            </View>
-
-            <View style={styles.roomHeaderTitle}>
-              <Text style={styles.roomTitle}>Room {displayRoomNumber}</Text>
-              <Text style={styles.roomSubtitle}>Accommodation</Text>
-            </View>
-
-            {quote.rooms.length > 1 && (
-              <AnimatedButton
-                onPress={() => handleRemoveRoom(room.id)}
-                style={styles.deleteButton}
-              >
-                <Icon name="trash-can-outline" size={17} color="#DC2626" />
-                <Text style={styles.deleteText}>Delete</Text>
-              </AnimatedButton>
-            )}
+  const roomsHeaderElement = useMemo(
+    () => (
+      <Card index={0}>
+        <View style={styles.sectionHeaderRow}>
+          <View style={styles.sectionHeaderContent}>
+            <SectionTitle>ACCOMMODATION & RATES</SectionTitle>
+            <Text style={styles.sectionDescription}>
+              Configure rooms, rates, and guest allocation
+            </Text>
           </View>
 
-          <View style={styles.twoColumns}>
-            <View style={styles.halfColumn}>
-              <Text style={styles.fieldLabel}>Room Type</Text>
-              <TextInput
-                value={room.name}
-                onChangeText={value => updateRoom(room.id, { name: value })}
-                placeholder="e.g. Deluxe Room"
-                placeholderTextColor="#9AA6A0"
-                style={styles.input}
-              />
-            </View>
-
-            <View style={styles.halfColumn}>
-              <Text style={styles.fieldLabel}>Nightly Rate</Text>
-              <View style={styles.rateInputContainer}>
-                <Text style={styles.currencyPrefix}>{quote.currency.symbol}</Text>
-                <TextInput
-                  value={room.rate ? String(room.rate) : ''}
-                  keyboardType="decimal-pad"
-                  onChangeText={value =>
-                    updateRoom(room.id, { rate: Number(value) || 0 })
-                  }
-                  placeholder="0"
-                  placeholderTextColor="#9AA6A0"
-                  style={styles.rateTextInput}
-                />
-              </View>
-            </View>
-          </View>
-
-          {/* Quick preset room suggestions */}
-          <View style={styles.quickRoomChips}>
-            {PRESET_ROOMS.map(preset => {
-              const isMatch = room.name.toLowerCase() === preset.toLowerCase();
-              return (
-                <Pressable
-                  key={preset}
-                  onPress={() => {
-                    const defaultRate = getDefaultRate(preset);
-                    updateRoom(room.id, {
-                      name: preset,
-                      rate: room.rate === 0 || room.rate === 100 ? defaultRate : room.rate,
-                    });
-                  }}
-                  style={[
-                    styles.quickRoomChip,
-                    isMatch && styles.quickRoomChipActive,
-                  ]}
-                  hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
-                >
-                  <Text
-                    style={[
-                      styles.quickRoomChipText,
-                      isMatch && styles.quickRoomChipTextActive,
-                    ]}
-                  >
-                    {preset.replace(' Room', '')}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-
-          <View style={styles.roomGuestHeader}>
-            <View style={styles.roomGuestHeaderText}>
-              <Text style={styles.fieldLabel}>Guests in this room</Text>
-              <Text style={styles.roomGuestHint}>
-                Set the guest allocation for this room
-              </Text>
-            </View>
-
-            <View style={styles.roomGuestBadge}>
-              <Icon name="account-group-outline" size={14} color="#16733F" />
-              <Text style={styles.roomGuestBadgeText}>
-                {roomGuestData.adults + roomGuestData.children}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.roomGuestRow}>
-            <View style={styles.roomGuestCounter}>
-              <View style={styles.roomGuestLabelWrap}>
-                <Icon name="account-outline" size={17} color="#55655D" />
-                <Text style={styles.roomGuestLabel}>Adults</Text>
-              </View>
-
-              <View style={styles.roomGuestControls}>
-                <AnimatedButton
-                  onPress={() =>
-                    updateRoomGuestCount(
-                      room,
-                      'adults',
-                      getRoomGuests(room).adults - 1,
-                    )
-                  }
-                  disabled={getRoomGuests(room).adults <= 1}
-                  style={[
-                    styles.roomGuestButton,
-                    getRoomGuests(room).adults <= 1 && styles.roomGuestButtonDisabled,
-                  ]}
-                >
-                  <Text style={styles.roomGuestButtonText}>−</Text>
-                </AnimatedButton>
-
-                <Text style={styles.roomGuestValue}>{getRoomGuests(room).adults}</Text>
-
-                <AnimatedButton
-                  onPress={() =>
-                    updateRoomGuestCount(
-                      room,
-                      'adults',
-                      getRoomGuests(room).adults + 1,
-                    )
-                  }
-                  disabled={getRoomGuests(room).adults >= 20}
-                  style={[
-                    styles.roomGuestButton,
-                    getRoomGuests(room).adults >= 20 && styles.roomGuestButtonDisabled,
-                  ]}
-                >
-                  <Text style={styles.roomGuestButtonText}>+</Text>
-                </AnimatedButton>
-              </View>
-            </View>
-
-            <View style={styles.roomGuestCounter}>
-              <View style={styles.roomGuestLabelWrap}>
-                <Icon name="account-child-outline" size={17} color="#55655D" />
-                <Text style={styles.roomGuestLabel}>Children</Text>
-              </View>
-
-              <View style={styles.roomGuestControls}>
-                <AnimatedButton
-                  onPress={() =>
-                    updateRoomGuestCount(
-                      room,
-                      'children',
-                      getRoomGuests(room).children - 1,
-                    )
-                  }
-                  disabled={getRoomGuests(room).children <= 0}
-                  style={[
-                    styles.roomGuestButton,
-                    getRoomGuests(room).children <= 0 && styles.roomGuestButtonDisabled,
-                  ]}
-                >
-                  <Text style={styles.roomGuestButtonText}>−</Text>
-                </AnimatedButton>
-
-                <Text style={styles.roomGuestValue}>
-                  {getRoomGuests(room).children}
-                </Text>
-
-                <AnimatedButton
-                  onPress={() =>
-                    updateRoomGuestCount(
-                      room,
-                      'children',
-                      getRoomGuests(room).children + 1,
-                    )
-                  }
-                  disabled={getRoomGuests(room).children >= 20}
-                  style={[
-                    styles.roomGuestButton,
-                    getRoomGuests(room).children >= 20 && styles.roomGuestButtonDisabled,
-                  ]}
-                >
-                  <Text style={styles.roomGuestButtonText}>+</Text>
-                </AnimatedButton>
-              </View>
-            </View>
-          </View>
-
-          <Text style={[styles.fieldLabel, styles.rateAppliesLabel]}>
-            Rate applies
-          </Text>
-
-          <View style={styles.toggleRow}>
-            <AnimatedButton
-              onPress={() => updateRoom(room.id, { pricingType: 'perRoom' })}
-              style={[
-                styles.toggleButton,
-                room.pricingType === 'perRoom' && styles.toggleActive,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.toggleText,
-                  room.pricingType === 'perRoom' && styles.toggleActiveText,
-                ]}
-              >
-                Per Room
-              </Text>
-            </AnimatedButton>
-
-            <AnimatedButton
-              onPress={() => updateRoom(room.id, { pricingType: 'perGuest' })}
-              style={[
-                styles.toggleButton,
-                room.pricingType === 'perGuest' && styles.toggleActive,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.toggleText,
-                  room.pricingType === 'perGuest' && styles.toggleActiveText,
-                ]}
-              >
-                Per Guest
-              </Text>
-            </AnimatedButton>
-          </View>
+          <AnimatedButton onPress={handleAddRoom} style={styles.addRoomButton}>
+            <Icon name="plus" size={16} color="#FFFFFF" />
+            <Text style={styles.addRoomText}>Add Room</Text>
+          </AnimatedButton>
         </View>
       </Card>
-    );
-  };
+    ),
+    [handleAddRoom],
+  );
 
-  const renderRoomsFooter = () => (
-    <>
-      {isLoadingMoreRooms && (
-        <View style={styles.loadingMoreRoomsContainer}>
-          <Text style={styles.loadingMoreRoomsText}>
-            Loading more rooms...
+  const handleUpdateRoom = useCallback(
+    (id: string, updates: any) => {
+      updateRoom(id, updates);
+    },
+    [updateRoom],
+  );
+
+  const handleRemoveRoomCallback = useCallback(
+    (id: string) => {
+      handleRemoveRoom(id);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [quote.rooms.length],
+  );
+
+  const renderRoomItem = useCallback(
+    ({
+      item: room,
+      index,
+    }: {
+      item: Room;
+      index: number;
+    }) => {
+      const displayRoomNumber = roomNumbersRef.current[room.id] ?? index + 1;
+      const roomGuestData = getRoomGuests(room);
+
+      return (
+        <RoomCardItem
+          room={room}
+          index={index}
+          displayRoomNumber={displayRoomNumber}
+          roomGuestData={roomGuestData}
+          currencySymbol={quote.currency.symbol}
+          totalRoomsCount={quote.rooms.length}
+          onUpdateRoom={handleUpdateRoom}
+          onRemoveRoom={handleRemoveRoomCallback}
+          onUpdateRoomGuestCount={updateRoomGuestCount}
+        />
+      );
+    },
+    [
+      getRoomGuests,
+      quote.currency.symbol,
+      quote.rooms.length,
+      handleUpdateRoom,
+      handleRemoveRoomCallback,
+      updateRoomGuestCount,
+    ],
+  );
+
+  const roomsFooterElement = useMemo(
+    () => (
+      <>
+        {isLoadingMoreRooms && (
+          <View style={styles.loadingMoreRoomsContainer}>
+            <Text style={styles.loadingMoreRoomsText}>
+              Loading more rooms...
+            </Text>
+          </View>
+        )}
+
+        <View style={styles.roomTotalPreview}>
+          <View>
+            <Text style={styles.previewCaption}>CURRENT ROOM SUBTOTAL</Text>
+            <Text style={styles.previewAmount}>
+              {formatMoney(roomSubtotal, quote.currency.code)}
+            </Text>
+          </View>
+
+          <Text style={styles.previewNights}>
+            {totalNights || 0} {totalNights === 1 ? 'night' : 'nights'}
           </Text>
         </View>
-      )}
-
-      <View style={styles.roomTotalPreview}>
-        <View>
-          <Text style={styles.previewCaption}>CURRENT ROOM SUBTOTAL</Text>
-          <Text style={styles.previewAmount}>
-            {formatMoney(roomSubtotal, quote.currency.code)}
-          </Text>
-        </View>
-
-        <Text style={styles.previewNights}>
-          {totalNights || 0} {totalNights === 1 ? 'night' : 'nights'}
-        </Text>
-      </View>
-    </>
+      </>
+    ),
+    [isLoadingMoreRooms, roomSubtotal, quote.currency.code, totalNights],
   );
 
   const renderPricingTab = () => (
@@ -2148,27 +2322,33 @@ export default function QuoteScreen() {
     }
   };
 
-  const renderScreenHeader = () => (
-    <>
-      <View style={styles.header}>
-        <View style={styles.brandRow}>
-          <AnimatedLogo />
-          <View>
-            <Text style={styles.brandTitle}>Quote Generator</Text>
-            <Text style={styles.brandSubtitle}>HOSPITALITY SUITE</Text>
+  const screenHeaderElement = useMemo(
+    () => (
+      <>
+        <View style={styles.header}>
+          <View style={styles.brandRow}>
+            <AnimatedLogo />
+            <View>
+              <Text style={styles.brandTitle}>Quote Generator</Text>
+              <Text style={styles.brandSubtitle}>HOSPITALITY SUITE</Text>
+            </View>
+          </View>
+
+          <View style={styles.headerStatus}>
+            <View style={styles.statusDot} />
+            <Text style={styles.statusText}>READY</Text>
           </View>
         </View>
 
-       
-      </View>
+        <AnimatedHeading />
 
-      <AnimatedHeading />
-
-      <StepProgressBar
-        activeTab={activeTab}
-        onTabPress={handleTabPress}
-      />
-    </>
+        <StepProgressBar
+          activeTab={activeTab}
+          onTabPress={handleTabPress}
+        />
+      </>
+    ),
+    [activeTab, handleTabPress],
   );
 
   return (
@@ -2197,11 +2377,11 @@ export default function QuoteScreen() {
               ]}
               ListHeaderComponent={
                 <>
-                  {renderScreenHeader()}
-                  {renderRoomsHeader()}
+                  {screenHeaderElement}
+                  {roomsHeaderElement}
                 </>
               }
-              ListFooterComponent={renderRoomsFooter}
+              ListFooterComponent={roomsFooterElement}
             />
 
             <View style={styles.stickyRoomsFooter}>
@@ -2219,7 +2399,7 @@ export default function QuoteScreen() {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            {renderScreenHeader()}
+            {screenHeaderElement}
             <View>{renderCurrentTab()}</View>
           </ScrollView>
         )}
@@ -2300,7 +2480,7 @@ export default function QuoteScreen() {
   );
 }
 
-function NextButton({
+const NextButton = React.memo(function NextButton({
   label,
   onPress,
   onBack,
@@ -2342,4 +2522,4 @@ function NextButton({
       </AnimatedButton>
     </View>
   );
-}
+});
