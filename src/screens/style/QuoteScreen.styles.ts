@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '800',
     letterSpacing: 0.3,
-    color: COLORS.accent,
+    color: '#FFFFFF',
   },
 
   tabLabelActive: {
