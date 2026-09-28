@@ -1,5 +1,13 @@
 import { Platform, StyleSheet } from 'react-native';
 
+const COLORS = {
+  screenBg: '#F2F7F4',
+  barBg: '#151C18',
+  accent: '#16733F',
+  labelIdle: '#9BA8A0',
+  white: '#FFFFFF',
+};
+
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
@@ -227,91 +235,76 @@ const styles = StyleSheet.create({
   // Bottom Tab Bar (No 01, 02, 03 numbers!)
   // -------------------------------------------------------------
   bottomTabBar: {
-    backgroundColor: '#F2F7F4',
-    paddingTop: 3,
-    paddingBottom: Platform.OS === 'ios' ? 14 : 8,
+    backgroundColor: COLORS.screenBg,
+    paddingTop: 6,
+    paddingBottom: Platform.OS === 'ios' ? 14 : 10,
   },
 
   tabBar: {
-    minHeight: 62,
-    marginHorizontal: 16,
-    marginVertical: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 6,
-    borderRadius: 22,
-    backgroundColor: '#151C18',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    shadowColor: '#07100B',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.22,
-    shadowRadius: 14,
-    elevation: 8,
+    minHeight: 66,
+    marginHorizontal: 16,
+    padding: 6,
+    borderRadius: 26,
+    backgroundColor: COLORS.barBg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.28,
+    shadowRadius: 18,
+    elevation: 12,
   },
 
   tabPressable: {
     flex: 1,
-    minWidth: 0,
-    borderRadius: 16,
-    overflow: 'hidden',
+    borderRadius: 20,
+    // Clipping only on Android (for ripple). On iOS it would cut off the icon glow.
+    overflow: Platform.OS === 'android' ? 'hidden' : 'visible',
   },
 
   tabItem: {
-    flex: 1,
-    minWidth: 0,
-    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    flexDirection: 'column',
-    paddingVertical: 6,
-    paddingHorizontal: 2,
-    marginHorizontal: 2,
+    paddingVertical: 8,
+    borderRadius: 20,
   },
 
   tabItemActive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(22, 115, 63, 0.5)',
+    backgroundColor: 'rgba(22, 115, 63, 0.16)',
   },
 
   tabIcon: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 32,
+    height: 32,
+    lineHeight: 32,
+    marginBottom: 3,
+    borderRadius: 16,
     textAlign: 'center',
     textAlignVertical: 'center',
-    marginBottom: 2,
-    backgroundColor: 'transparent',
-    lineHeight: 30,
   },
 
   tabIconActive: {
-    backgroundColor: '#16733F',
-    color: '#FFFFFF',
-    shadowColor: '#16733F',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.35,
-    shadowRadius: 5,
-    elevation: 3,
-  },
-
-  tabTextContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: COLORS.accent,
+    color: COLORS.white,
+    shadowColor: COLORS.accent,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 4,
   },
 
   tabLabel: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#8A9790',
-    textAlign: 'center',
-    letterSpacing: 0.2,
+    letterSpacing: 0.3,
+    color: COLORS.labelIdle,
   },
 
   tabLabelActive: {
-    color: '#FFFFFF',
-    fontWeight: '800',
+    fontWeight: '700',
+    color: COLORS.white,
   },
 
   // -------------------------------------------------------------
