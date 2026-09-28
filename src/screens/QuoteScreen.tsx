@@ -2263,10 +2263,6 @@ export default function QuoteScreen() {
         </View>
 
         <View style={styles.messageBox}>
-          <View style={styles.messageHeader}>
-            <Text style={styles.messageHeaderText}>LIVE PREVIEW</Text>
-            <View style={styles.messageLiveDot} />
-          </View>
 
           <Text
             style={[
