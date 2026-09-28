@@ -434,11 +434,6 @@ const Counter = React.memo(function Counter({
     <View style={styles.counterRow}>
       <View style={styles.counterLabelWrap}>
         <Text style={styles.counterLabel}>{label}</Text>
-        <Text style={styles.counterSubLabel}>
-          {label === 'Adults'
-            ? 'Guests 12 years and above'
-            : 'Guests below 12 years'}
-        </Text>
       </View>
 
       <View style={styles.counterControls}>
@@ -2332,11 +2327,6 @@ export default function QuoteScreen() {
               <Text style={styles.brandTitle}>Quote Generator</Text>
               <Text style={styles.brandSubtitle}>HOSPITALITY SUITE</Text>
             </View>
-          </View>
-
-          <View style={styles.headerStatus}>
-            <View style={styles.statusDot} />
-            <Text style={styles.statusText}>READY</Text>
           </View>
         </View>
 
