@@ -778,22 +778,68 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E2EBE5',
     borderRadius: 14,
-    padding: 10,
-    flexDirection: 'row',
+    paddingVertical: 10,
+    paddingHorizontal: 8,
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
   },
 
   roomGuestLabelWrap: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 5,
+    marginBottom: 8,
   },
 
   roomGuestLabel: {
     fontSize: 13,
     fontWeight: '700',
     color: '#28362E',
+  },
+
+  roomGuestControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  roomGuestButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#D4E0D8',
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#10291D',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+
+  roomGuestButtonDisabled: {
+    opacity: 0.3,
+    borderColor: '#E2EBE5',
+    backgroundColor: '#F5F8F6',
+  },
+
+  roomGuestButtonText: {
+    fontSize: 18,
+    color: '#16733F',
+    lineHeight: 20,
+    fontWeight: '700',
+  },
+
+  roomGuestValue: {
+    minWidth: 32,
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#142019',
+    marginHorizontal: 4,
   },
 
   rateAppliesLabel: {

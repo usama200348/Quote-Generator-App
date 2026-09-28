@@ -1595,7 +1595,7 @@ export default function QuoteScreen() {
                 <Text style={styles.roomGuestLabel}>Adults</Text>
               </View>
 
-              <View style={styles.counterControls}>
+              <View style={styles.roomGuestControls}>
                 <AnimatedButton
                   onPress={() =>
                     updateRoomGuestCount(
@@ -1606,14 +1606,14 @@ export default function QuoteScreen() {
                   }
                   disabled={getRoomGuests(room).adults <= 1}
                   style={[
-                    styles.counterButton,
-                    getRoomGuests(room).adults <= 1 && styles.counterButtonDisabled,
+                    styles.roomGuestButton,
+                    getRoomGuests(room).adults <= 1 && styles.roomGuestButtonDisabled,
                   ]}
                 >
-                  <Text style={styles.counterButtonText}>−</Text>
+                  <Text style={styles.roomGuestButtonText}>−</Text>
                 </AnimatedButton>
 
-                <Text style={styles.counterValue}>{getRoomGuests(room).adults}</Text>
+                <Text style={styles.roomGuestValue}>{getRoomGuests(room).adults}</Text>
 
                 <AnimatedButton
                   onPress={() =>
@@ -1625,11 +1625,11 @@ export default function QuoteScreen() {
                   }
                   disabled={getRoomGuests(room).adults >= 20}
                   style={[
-                    styles.counterButton,
-                    getRoomGuests(room).adults >= 20 && styles.counterButtonDisabled,
+                    styles.roomGuestButton,
+                    getRoomGuests(room).adults >= 20 && styles.roomGuestButtonDisabled,
                   ]}
                 >
-                  <Text style={styles.counterButtonText}>+</Text>
+                  <Text style={styles.roomGuestButtonText}>+</Text>
                 </AnimatedButton>
               </View>
             </View>
@@ -1640,7 +1640,7 @@ export default function QuoteScreen() {
                 <Text style={styles.roomGuestLabel}>Children</Text>
               </View>
 
-              <View style={styles.counterControls}>
+              <View style={styles.roomGuestControls}>
                 <AnimatedButton
                   onPress={() =>
                     updateRoomGuestCount(
@@ -1651,14 +1651,14 @@ export default function QuoteScreen() {
                   }
                   disabled={getRoomGuests(room).children <= 0}
                   style={[
-                    styles.counterButton,
-                    getRoomGuests(room).children <= 0 && styles.counterButtonDisabled,
+                    styles.roomGuestButton,
+                    getRoomGuests(room).children <= 0 && styles.roomGuestButtonDisabled,
                   ]}
                 >
-                  <Text style={styles.counterButtonText}>−</Text>
+                  <Text style={styles.roomGuestButtonText}>−</Text>
                 </AnimatedButton>
 
-                <Text style={styles.counterValue}>
+                <Text style={styles.roomGuestValue}>
                   {getRoomGuests(room).children}
                 </Text>
 
@@ -1672,11 +1672,11 @@ export default function QuoteScreen() {
                   }
                   disabled={getRoomGuests(room).children >= 20}
                   style={[
-                    styles.counterButton,
-                    getRoomGuests(room).children >= 20 && styles.counterButtonDisabled,
+                    styles.roomGuestButton,
+                    getRoomGuests(room).children >= 20 && styles.roomGuestButtonDisabled,
                   ]}
                 >
-                  <Text style={styles.counterButtonText}>+</Text>
+                  <Text style={styles.roomGuestButtonText}>+</Text>
                 </AnimatedButton>
               </View>
             </View>
