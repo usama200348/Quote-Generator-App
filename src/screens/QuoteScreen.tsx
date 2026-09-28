@@ -2010,7 +2010,8 @@ export default function QuoteScreen() {
             <AnimatedButton
               style={styles.selectBox}
               onPress={() => setCurrencyModalMode('base')}
-            >              <Text style={styles.selectText}>{quote.currency.code}</Text>
+            >
+              <Text style={styles.selectText}>{quote.currency.code}</Text>
               <Icon name="chevron-down" size={19} color="#16733F" />
             </AnimatedButton>
           </View>
@@ -2409,10 +2410,12 @@ export default function QuoteScreen() {
                   {currencyModalMode === 'base'
                     ? 'Base Currency'
                     : 'Display Currency'}
-                </Text>                <Text style={styles.modalSubtitle}>
+                </Text>
+                <Text style={styles.modalSubtitle}>
                   {currencyModalMode === 'base'
                     ? 'Choose default base currency for rates and totals'
-                    : 'Choose the currency for displaying your quote'}                </Text>
+                    : 'Choose the currency for displaying your quote'}
+                </Text>
               </View>
 
               <Pressable
