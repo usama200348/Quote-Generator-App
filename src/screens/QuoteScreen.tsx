@@ -1545,6 +1545,8 @@ export default function QuoteScreen() {
     }
 
     const dateText = `${quote.checkIn} to ${quote.checkOut}`;
+    const totalRooms = quote.rooms.length;
+    const roomText = `${totalRooms} ${totalRooms === 1 ? 'room' : 'rooms'}`;
 
     if (tone === 'formal') {
       return (
@@ -1552,7 +1554,7 @@ export default function QuoteScreen() {
         `Thank you for your inquiry. ` +
         `Your quote for ${dateText} ` +
         `(${totalNights} nights) ` +
-        `for ${totalGuests} guests ` +
+        `for ${totalGuests} guests across ${roomText} ` +
         `is ${formatMoney(finalTotal, quote.currency.code)}.\n\n` +
         `Please contact us to finalize your reservation.\n\n` +
         `Warm regards,\nReservations Team`
@@ -1562,6 +1564,7 @@ export default function QuoteScreen() {
     if (tone === 'casual') {
       return (
         `Hey! Your stay from ${dateText} ` +
+        `(${roomText}) ` +
         `comes out to ${formatMoney(finalTotal, quote.currency.code)}. Hit us up to lock it in!`
       );
     }
@@ -1570,7 +1573,7 @@ export default function QuoteScreen() {
       `Hi there! We'd love to host you. ` +
       `For your stay from ${dateText} ` +
       `(${totalNights} nights) for ` +
-      `${totalGuests} guests, the total is ` +
+      `${totalGuests} guests across ${roomText}, the total is ` +
       `${formatMoney(finalTotal, quote.currency.code)} ` +
       `(~${formatMoney(convertedTotal, targetCurrency)}). Let us know if you'd like to book!`
     );
@@ -1580,6 +1583,7 @@ export default function QuoteScreen() {
     quote.checkIn,
     quote.checkOut,
     quote.currency.code,
+    quote.rooms.length,
     tone,
     totalNights,
     totalGuests,
