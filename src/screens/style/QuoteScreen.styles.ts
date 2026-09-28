@@ -236,8 +236,9 @@ const styles = StyleSheet.create({
   // -------------------------------------------------------------
   bottomTabBar: {
     backgroundColor: COLORS.screenBg,
-    paddingTop: 28, // room for the raised circle
+    paddingTop: 6,
     paddingBottom: Platform.OS === 'ios' ? 14 : 10,
+    overflow: 'visible',
   },
 
   tabBar: {
@@ -252,6 +253,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 16,
     elevation: 8,
+    overflow: 'visible',
   },
 
   tabPressable: {
