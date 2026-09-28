@@ -30,7 +30,6 @@ export type QuoteState = {
   rooms: Room[];
 
   currency: Currency;
-quote: String
   discount: number;
   tax: number;
   notes: string;

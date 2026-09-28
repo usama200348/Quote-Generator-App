@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   flex: {
@@ -11,7 +11,7 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    paddingBottom: 25,
+    paddingBottom: 24,
   },
 
   header: {
@@ -134,94 +134,111 @@ const styles = StyleSheet.create({
   },
 
   tabsContainer: {
-  paddingHorizontal: 14,
-  marginBottom: 22,
-},
-
-tabBar: {
-  height: 88,
-  borderRadius: 28,
-  backgroundColor: '#DDE8E2',
-  padding: 6,
-  flexDirection: 'row',
-  borderWidth: 1,
-  borderColor: '#D2DFD8',
-  shadowColor: '#10291D',
-  shadowOffset: {
-    width: 0,
-    height: 10,
+    display: 'none',
   },
-  shadowOpacity: 0.10,
-  shadowRadius: 20,
-  elevation: 7,
-},
 
-tabPressable: {
-  flex: 1,
-  minWidth: 0,
-  borderRadius: 22,
-},
-
-tabItem: {
-  flex: 1,
-  minWidth: 0,
-  borderRadius: 22,
-  alignItems: 'center',
-  justifyContent: 'center',
-  flexDirection: 'column',
-  paddingHorizontal: 2,
-  paddingVertical: 5,
-  position: 'relative',
-},
-
-tabItemActive: {
-  backgroundColor: '#FFFFFF',
-  borderWidth: 1,
-  borderColor: '#F4F8F5',
-  shadowColor: '#10291D',
-  shadowOffset: {
-    width: 0,
-    height: 7,
+  tabBar: {
+    minHeight: 64,
+    marginHorizontal: 16,
+    marginVertical: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: '#151C18',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#07100B',
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 14,
+    elevation: 8,
   },
-  shadowOpacity: 0.15,
-  shadowRadius: 13,
-  elevation: 7,
-},
 
-tabIcon: {
-  marginRight: 0,
-  marginBottom: 4,
-},
+  tabPressable: {
+    flex: 1,
+    minWidth: 0,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
 
-tabTextContainer: {
-  alignItems: 'center',
-  justifyContent: 'center',
-},
+  tabItem: {
+    flex: 1,
+    minWidth: 0,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    paddingVertical: 6,
+    paddingHorizontal: 2,
+    marginHorizontal: 2,
+  },
 
-tabNumber: {
-  fontSize: 6,
-  fontWeight: '900',
-  color: '#9AA7A0',
-  letterSpacing: 1,
-  marginBottom: 2,
-},
+  tabItemActive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(27, 122, 67, 0.45)',
+  },
 
-tabNumberActive: {
-  color: '#16733F',
-},
+  tabIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    marginBottom: 3,
+    backgroundColor: 'transparent',
+    lineHeight: 32,
+  },
 
-tabLabel: {
-  fontSize: 9,
-  fontWeight: '800',
-  color: '#7C8982',
-  textAlign: 'center',
-  letterSpacing: 0.1,
-},
+  tabIconActive: {
+    backgroundColor: '#16733F',
+    color: '#FFFFFF',
+    shadowColor: '#16733F',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 4,
+  },
 
-tabLabelActive: {
-  color: '#10291D',
-  fontWeight: '900',
-},
+  tabTextContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  tabNumber: {
+    fontSize: 8,
+    fontWeight: '800',
+    color: '#6E7C74',
+    letterSpacing: 0.5,
+    marginBottom: 1,
+  },
+
+  tabNumberActive: {
+    color: '#5ED895',
+  },
+
+  tabLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#909F96',
+    textAlign: 'center',
+    letterSpacing: 0.1,
+  },
+
+  tabLabelActive: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+  },
+
+  bottomTabBar: {
+    backgroundColor: '#F2F7F4',
+    paddingTop: 2,
+    paddingBottom: Platform.OS === 'ios' ? 12 : 8,
+  },
 
   card: {
     marginHorizontal: 16,
@@ -464,28 +481,45 @@ tabLabelActive: {
 
   addRoomButton: {
     minHeight: 40,
-    paddingHorizontal: 13,
+    paddingHorizontal: 14,
     borderRadius: 12,
-    backgroundColor: '#EFF8F2',
+    backgroundColor: '#16733F',
     borderWidth: 1,
-    borderColor: '#CFE8D8',
+    borderColor: '#16733F',
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
+    shadowColor: '#16733F',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 3,
   },
 
   addRoomText: {
     fontSize: 10,
     fontWeight: '900',
-    color: '#16733F',
+    color: '#FFFFFF',
   },
 
   roomBox: {
-    backgroundColor: '#F7FAF8',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E0E8E3',
-    borderRadius: 17,
-    padding: 15,
+    borderColor: '#DDE8E1',
+    borderRadius: 18,
+    padding: 16,
     marginBottom: 11,
+    shadowColor: '#10291D',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2,
   },
 
   roomHeader: {
@@ -527,14 +561,97 @@ tabLabelActive: {
   },
 
   deleteButton: {
-    paddingHorizontal: 8,
-    paddingVertical: 7,
+    minWidth: 72,
+    height: 36,
+    paddingHorizontal: 10,
+    borderRadius: 11,
+    backgroundColor: '#FFF4F4',
+    borderWidth: 1,
+    borderColor: '#F3D4D4',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 5,
   },
 
   deleteText: {
     fontSize: 10,
+    fontWeight: '900',
+    color: '#D64545',
+  },
+
+  roomGuestHeader: {
+    marginTop: 16,
+    marginBottom: 9,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  roomGuestHeaderText: {
+    flex: 1,
+    paddingRight: 10,
+  },
+
+  roomGuestHint: {
+    fontSize: 9,
+    color: '#8E9993',
+    marginTop: -3,
+  },
+
+  roomGuestBadge: {
+    minWidth: 42,
+    height: 32,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    backgroundColor: '#EFF8F2',
+    borderWidth: 1,
+    borderColor: '#D6EBDD',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+
+  roomGuestBadgeText: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: '#16733F',
+  },
+
+  roomGuestRow: {
+    flexDirection: 'row',
+    gap: 9,
+    marginBottom: 2,
+  },
+
+  roomGuestCounter: {
+    flex: 1,
+    minWidth: 0,
+    minHeight: 58,
+    paddingHorizontal: 9,
+    paddingVertical: 8,
+    borderRadius: 13,
+    backgroundColor: '#F7FAF8',
+    borderWidth: 1,
+    borderColor: '#E0E8E3',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  roomGuestLabelWrap: {
+    flex: 1,
+    minWidth: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+
+  roomGuestLabel: {
+    fontSize: 10,
     fontWeight: '800',
-    color: '#E34A4A',
+    color: '#536159',
   },
 
   rateAppliesLabel: {
@@ -670,6 +787,28 @@ tabLabelActive: {
     letterSpacing: 0.7,
   },
 
+
+  todayButton: {
+  alignSelf: 'center',
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 6,
+  paddingHorizontal: 16,
+  paddingVertical: 8,
+  marginTop: 4,
+  marginBottom: 10,
+  borderRadius: 20,
+  backgroundColor: '#E8F4EC',
+  borderWidth: 1,
+  borderColor: '#C8E2D1',
+},
+
+todayButtonText: {
+  fontSize: 13,
+  fontWeight: '800',
+  color: '#1B7A43',
+},
   selectBox: {
     minHeight: 51,
     backgroundColor: '#F7FAF8',
@@ -962,7 +1101,7 @@ tabLabelActive: {
   copyButton: {
     flex: 1,
     minWidth: 0,
-    height: 46,
+    height: 48,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#DCE5DF',
@@ -973,57 +1112,58 @@ tabLabelActive: {
   },
 
   copyButtonText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '800',
     color: '#364039',
-    marginLeft: 5,
+    marginLeft: 6,
   },
 
   whatsappButton: {
-    flex: 1.35,
+    flex: 1.25,
     minWidth: 0,
-    height: 46,
+    height: 48,
     backgroundColor: '#25D366',
     borderRadius: 13,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    elevation: 4,
+    elevation: 3,
   },
 
   whatsappButtonText: {
-    fontSize: 10,
-    fontWeight: '900',
+    fontSize: 11,
+    fontWeight: '800',
     color: '#FFFFFF',
-    marginLeft: 5,
+    marginLeft: 6,
   },
 
   emailButton: {
     flex: 1,
     minWidth: 0,
-    height: 46,
+    height: 48,
     backgroundColor: '#1B7A43',
     borderRadius: 13,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    elevation: 5,
+    elevation: 3,
   },
 
   emailButtonText: {
-    fontSize: 10,
-    fontWeight: '900',
+    fontSize: 11,
+    fontWeight: '800',
     color: '#FFFFFF',
-    marginLeft: 5,
+    marginLeft: 6,
   },
 
-  navigationButtons: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 9,
-  },
+navigationButtons: {
+  marginHorizontal: 16,
+  marginTop: 2,
+  marginBottom: 2,
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 8,
+},
 
   backButton: {
     height: 54,
@@ -1047,7 +1187,7 @@ tabLabelActive: {
 
   backOnlyButton: {
     flex: 1,
-    height: 54,
+    height: 50,
     paddingHorizontal: 18,
     borderRadius: 17,
     backgroundColor: '#FFFFFF',
@@ -1075,7 +1215,7 @@ tabLabelActive: {
 
   nextButton: {
     flex: 1,
-    minHeight: 54,
+    minHeight: 50,
     borderRadius: 17,
     backgroundColor: '#16733F',
     paddingHorizontal: 18,
@@ -1501,6 +1641,137 @@ tabLabelActive: {
   bottomSpace: {
     height: 35,
   },
+
+roomsContainer: {
+  flex: 1,
+},
+
+roomsListContent: {
+  paddingBottom: 6,
+},
+
+stickyRoomsFooter: {
+  backgroundColor: '#F7FAF8',
+  borderTopWidth: 1,
+  borderTopColor: '#E1EAE4',
+  paddingHorizontal: 16,
+  paddingTop: 8,
+},
+
+// Room & Guest Allocation Table / Breakdown in Quote Summary
+quoteRoomsSection: {
+  marginTop: 18,
+  marginBottom: 8,
+},
+
+quoteRoomsSectionHeader: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: 10,
+},
+
+quoteRoomsSectionTitle: {
+  fontSize: 10,
+  fontWeight: '900',
+  letterSpacing: 1.15,
+  color: '#718078',
+},
+
+quoteRoomCard: {
+  backgroundColor: '#F8FAF9',
+  borderWidth: 1,
+  borderColor: '#E2EBE5',
+  borderRadius: 14,
+  padding: 12,
+  marginBottom: 10,
+},
+
+quoteRoomTopRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: 6,
+},
+
+quoteRoomTitleRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  flex: 1,
+},
+
+quoteRoomBadge: {
+  backgroundColor: '#16733F',
+  borderRadius: 7,
+  paddingHorizontal: 6,
+  paddingVertical: 3,
+  marginRight: 8,
+},
+
+quoteRoomBadgeText: {
+  fontSize: 9,
+  fontWeight: '900',
+  color: '#FFFFFF',
+},
+
+quoteRoomName: {
+  fontSize: 12,
+  fontWeight: '800',
+  color: '#18211C',
+  flex: 1,
+},
+
+quoteRoomSubtotal: {
+  fontSize: 13,
+  fontWeight: '900',
+  color: '#16733F',
+},
+
+quoteRoomDetailRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginTop: 4,
+},
+
+quoteRoomGuestsWrap: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 6,
+},
+
+quoteGuestPill: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: '#EFF8F2',
+  borderWidth: 1,
+  borderColor: '#D4EAD9',
+  borderRadius: 8,
+  paddingHorizontal: 7,
+  paddingVertical: 3,
+  gap: 4,
+},
+
+quoteGuestPillText: {
+  fontSize: 10,
+  fontWeight: '800',
+  color: '#16733F',
+},
+
+quoteRoomPricingCalc: {
+  fontSize: 10,
+  fontWeight: '600',
+  color: '#7E8B84',
+},
+
+quoteRoomDivider: {
+  height: 1,
+  backgroundColor: '#E7EFEA',
+  marginVertical: 14,
+},
 });
 
+
+
 export default styles
+

@@ -1,19 +1,17 @@
 import React, {useEffect,useMemo,useRef,useState,} from 'react';
-import {Animated,Easing,KeyboardAvoidingView,LayoutAnimation,Linking,Modal,Platform,Pressable,ScrollView,StyleSheet,Text,TextInput,UIManager,View,} from 'react-native';
+import {Animated,Easing,KeyboardAvoidingView,LayoutAnimation,Linking,Modal,Platform,Pressable,ScrollView,StyleSheet,Text,TextInput,UIManager,View,FlatList} from 'react-native';
 import Toast from 'react-native-toast-message';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useQuoteState } from '../hooks/useQuoteState';
 import styles from './style/QuoteScreen.styles';
 
+
 type CurrencyOption = { code: string;name: string;symbol: string;};
-
 type Tone = 'friendly' | 'formal' | 'casual';
-
 type DiscountType = 'percent' | 'flat';
-
 type TabKey = 'stay' | 'rooms' | 'pricing' | 'quote';
-
 type IconName =
   | 'calendar-month-outline'
   | 'bed-outline'
@@ -31,27 +29,12 @@ type IconName =
   | 'whatsapp'
   | 'email-outline'
   | 'arrow-left'
-  | 'arrow-right';
-
-const ICONS: Record<IconName, string> = {
-  'calendar-month-outline': '▦',
-  'bed-outline': '▰',
-  'cash-multiple': '¤',
-  'file-document-outline': '▤',
-  'chevron-left': '‹',
-  'chevron-right': '›',
-  'calendar-check-outline': '✓',
-  'lock-outline': '◆',
-  'chevron-down': '⌄',
-  'swap-horizontal': '⇄',
-  'office-building-outline': '▥',
-  check: '✓',
-  'content-copy': '⧉',
-  'whatsapp': '☏',
-  'email-outline': '✉',
-  'arrow-left': '←',
-  'arrow-right': '→',
-};
+  | 'arrow-right'
+  | 'trash-can-outline'
+  | 'account-group-outline'
+  | 'account-outline'
+  | 'account-child-outline'
+  | 'plus';
 
 function Icon({
   name,
@@ -65,20 +48,12 @@ function Icon({
   style?: any;
 }) {
   return (
-    <Text
-      style={[
-        {
-          fontSize: size,
-          lineHeight: size + 3,
-          color,
-          fontWeight: '700',
-          textAlign: 'center',
-        },
-        style,
-      ]}
-    >
-      {ICONS[name]}
-    </Text>
+    <MaterialCommunityIcons
+      name={name}
+      size={size}
+      color={color}
+      style={style}
+    />
   );
 }
 
@@ -155,6 +130,8 @@ const TABS: {
     icon: 'file-document-outline',
   },
 ];
+
+const ROOMS_PAGE_SIZE = 3;
 
 if (
   Platform.OS === 'android' &&
@@ -350,7 +327,7 @@ function AnimatedLogo() {
           }),
         ]),
       ),
-    ]).start();
+    ]).start();  
   }, []);
 
   const rotateY = rotate.interpolate({
@@ -574,7 +551,10 @@ function TabBar({
                     ? '#16733F'
                     : '#8A9790'
                 }
-                style={styles.tabIcon}
+                style={[
+                  styles.tabIcon,
+                  selected && styles.tabIconActive,
+                ]}
               />
 
               <View style={styles.tabTextContainer}>
@@ -871,6 +851,43 @@ function CalendarModal({
     );
   };
 
+// Selected Current Day
+
+const handleTodayPress = () => {
+  const todayDate = startOfDay(new Date());
+
+  // Check-out ke liye today valid hai ya nahi
+  if (
+    field === 'checkOut' &&
+    checkInDate &&
+    todayDate <= checkInDate
+  ) {
+    Toast.show({
+      type: 'error',
+      text1: 'Invalid Check-out',
+      text2:
+        'Check-out must be after check-in.',
+      position: 'top',
+      visibilityTime: 2500,
+      topOffset: 60,
+    });
+
+    return;
+  }
+
+  // Calendar ko current month par le jao
+  setVisibleMonth(
+    new Date(
+      todayDate.getFullYear(),
+      todayDate.getMonth(),
+      1,
+    ),
+  );
+
+  // Today select karo
+  onSelect(todayDate);
+};
+
   const canGoPrevious =
     visibleMonth.getFullYear() >
       minimumDate.getFullYear() ||
@@ -1020,6 +1037,20 @@ function CalendarModal({
                 color="#1B7A43"
               />
             </Pressable>
+            <Pressable
+  onPress={handleTodayPress}
+  style={styles.todayButton}
+>
+  <Icon
+    name="calendar-check-outline"
+    size={16}
+    color="#1B7A43"
+  />
+
+  <Text style={styles.todayButtonText}>
+    Today
+  </Text>
+</Pressable>
           </View>
 
           <View style={styles.weekRow}>
@@ -1260,9 +1291,239 @@ export default function QuoteScreen() {
     setCurrencyModal,
   ] = useState(false);
 
+  const [
+    visibleRoomCount,
+    setVisibleRoomCount,
+  ] = useState(ROOMS_PAGE_SIZE);
+
+  const [
+    isLoadingMoreRooms,
+    setIsLoadingMoreRooms,
+  ] = useState(false);
+
+  // Room display identity is intentionally separate from array index.
+  // This prevents Room 2 from becoming "Room 1" when Room 1 is deleted.
+  const roomNumbersRef = useRef<Record<string, number>>(
+    Object.fromEntries(
+      quote.rooms.map((room, index) => [room.id, index + 1]),
+    ),
+  );
+
+  const nextRoomNumberRef = useRef(
+    quote.rooms.length + 1,
+  );
+
+  const [roomOrder, setRoomOrder] = useState<string[]>(
+    () => quote.rooms.map(room => room.id),
+  );
+
+  useEffect(() => {
+    const currentIds = new Set(
+      quote.rooms.map(room => room.id),
+    );
+
+    quote.rooms.forEach(room => {
+      if (!roomNumbersRef.current[room.id]) {
+        roomNumbersRef.current[room.id] =
+          nextRoomNumberRef.current;
+        nextRoomNumberRef.current += 1;
+      }
+    });
+
+    setRoomOrder(previous => {
+      const existing = previous.filter(id =>
+        currentIds.has(id),
+      );
+
+      const newIds = quote.rooms
+        .map(room => room.id)
+        .filter(id => !previous.includes(id));
+
+      // Newly-created rooms are placed first.
+      return [...newIds, ...existing];
+    });
+  }, [quote.rooms]);
+
+  const orderedRooms = useMemo(() => {
+    const byId = new Map(
+      quote.rooms.map(room => [room.id, room]),
+    );
+
+    const ordered = roomOrder
+      .map(id => byId.get(id))
+      .filter(Boolean) as typeof quote.rooms;
+
+    const missing = quote.rooms.filter(
+      room => !roomOrder.includes(room.id),
+    );
+
+    return [...ordered, ...missing];
+  }, [quote.rooms, roomOrder]);
+
+  const hasMoreRooms =
+    visibleRoomCount < quote.rooms.length;
+
   const totalGuests =
     quote.guests.adults +
     quote.guests.children;
+
+  type RoomGuestValues = {
+    adults: number;
+    children: number;
+  };
+
+  const [roomGuests, setRoomGuests] = useState<
+    Record<string, RoomGuestValues>
+  >({});
+
+  useEffect(() => {
+    setRoomGuests(previous => {
+      const next = { ...previous };
+
+      quote.rooms.forEach(room => {
+        const roomData = room as typeof room & {
+          adults?: number;
+          children?: number;
+        };
+
+        if (!next[room.id]) {
+          next[room.id] = {
+            adults: roomData.adults ?? 1,
+            children: roomData.children ?? 0,
+          };
+        }
+      });
+
+      Object.keys(next).forEach(id => {
+        if (!quote.rooms.some(room => room.id === id)) {
+          delete next[id];
+        }
+      });
+
+      return next;
+    });
+  }, [quote.rooms]);
+
+  const getRoomGuests = (
+    room: (typeof quote.rooms)[number],
+  ): RoomGuestValues => {
+    const roomData = room as typeof room & {
+      adults?: number;
+      children?: number;
+    };
+
+    return (
+      roomGuests[room.id] ?? {
+        adults: roomData.adults ?? 1,
+        children: roomData.children ?? 0,
+      }
+    );
+  };
+
+  const updateRoomGuestCount = (
+    room: (typeof quote.rooms)[number],
+    field: keyof RoomGuestValues,
+    value: number,
+  ) => {
+    const nextValue = Math.max(0, value);
+
+    setRoomGuests(previous => ({
+      ...previous,
+      [room.id]: {
+        ...getRoomGuests(room),
+        [field]: nextValue,
+      },
+    }));
+
+    // Keep the room data in the quote state as well.
+    updateRoom(room.id, {
+      [field]: nextValue,
+    } as any);
+  };
+
+  // Distribute the selected global guest count across the visible rooms.
+  // Adults and children are distributed independently so the room table
+  // always reflects the guest count selected on the Stay tab.
+  const buildRoomGuestAllocation = (
+    adults: number,
+    children: number,
+    rooms: typeof quote.rooms,
+  ): Record<string, RoomGuestValues> => {
+    const allocation: Record<string, RoomGuestValues> = {};
+    let remainingAdults = Math.max(0, adults);
+    let remainingChildren = Math.max(0, children);
+
+    rooms.forEach((room, index) => {
+      const roomsLeft = rooms.length - index;
+      const roomAdults =
+        roomsLeft > 0
+          ? Math.floor(remainingAdults / roomsLeft) +
+            (remainingAdults % roomsLeft > 0 ? 1 : 0)
+          : 0;
+      const roomChildren =
+        roomsLeft > 0
+          ? Math.floor(remainingChildren / roomsLeft) +
+            (remainingChildren % roomsLeft > 0 ? 1 : 0)
+          : 0;
+
+      allocation[room.id] = {
+        adults: roomAdults,
+        children: roomChildren,
+      };
+
+      remainingAdults -= roomAdults;
+      remainingChildren -= roomChildren;
+    });
+
+    return allocation;
+  };
+
+  const syncRoomGuestsToQuoteGuests = (
+    adults: number,
+    children: number,
+    rooms = quote.rooms,
+  ) => {
+    const allocation = buildRoomGuestAllocation(
+      adults,
+      children,
+      rooms,
+    );
+
+    setRoomGuests(allocation);
+
+    rooms.forEach(room => {
+      const guests = allocation[room.id];
+      if (!guests) {
+        return;
+      }
+
+      updateRoom(room.id, {
+        adults: guests.adults,
+        children: guests.children,
+      } as any);
+    });
+  };
+
+  const previousRoomCountRef = useRef(
+    quote.rooms.length,
+  );
+
+  useEffect(() => {
+    if (previousRoomCountRef.current === quote.rooms.length) {
+      return;
+    }
+
+    previousRoomCountRef.current = quote.rooms.length;
+
+    syncRoomGuestsToQuoteGuests(
+      quote.guests.adults,
+      quote.guests.children,
+      quote.rooms,
+    );
+    // Only react to rooms being added/removed. Individual room guest edits
+    // must not be overwritten by this effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quote.rooms.length]);
 
   const totalNights = useMemo(() => {
     const start =
@@ -1295,10 +1556,14 @@ export default function QuoteScreen() {
 
     return quote.rooms.reduce(
       (total, room) => {
+        const guestsInRoom =
+          (roomGuests[room.id]?.adults ?? 1) +
+          (roomGuests[room.id]?.children ?? 0);
+
         const guestMultiplier =
           room.pricingType ===
           'perGuest'
-            ? totalGuests
+            ? guestsInRoom
             : 1;
 
         return (
@@ -1313,8 +1578,8 @@ export default function QuoteScreen() {
     );
   }, [
     quote.rooms,
+    roomGuests,
     totalNights,
-    totalGuests,
   ]);
 
   const discountAmount =
@@ -1486,22 +1751,86 @@ export default function QuoteScreen() {
 
   const handleAddRoom = () => {
     LayoutAnimation.configureNext(
-      LayoutAnimation.Presets
-        .easeInEaseOut,
+      LayoutAnimation.Presets.easeInEaseOut,
     );
 
     addRoom();
+
+    setVisibleRoomCount(current =>
+      Math.min(current + 1, quote.rooms.length + 1),
+    );
+
+    Toast.show({
+      type: 'success',
+      text1: 'New Room Added',
+      text2: 'The new room has been added to the top of the list.',
+      position: 'top',
+      visibilityTime: 2200,
+      topOffset: 60,
+    });
   };
 
-  const handleRemoveRoom = (
-    roomId: string,
-  ) => {
+  const handleLoadMoreRooms = () => {
+    if (
+      isLoadingMoreRooms ||
+      !hasMoreRooms
+    ) {
+      return;
+    }
+
+    setIsLoadingMoreRooms(true);
+
+    setTimeout(() => {
+      setVisibleRoomCount(current =>
+        Math.min(
+          current + ROOMS_PAGE_SIZE,
+          quote.rooms.length,
+        ),
+      );
+
+      setIsLoadingMoreRooms(false);
+    }, 200);
+  };
+
+  const handleRemoveRoom = (roomId: string) => {
+    if (quote.rooms.length <= 1) {
+      Toast.show({
+        type: 'info',
+        text1: 'At Least One Room Required',
+        text2: 'The final room cannot be deleted.',
+        position: 'top',
+        visibilityTime: 2200,
+        topOffset: 60,
+      });
+      return;
+    }
+
     LayoutAnimation.configureNext(
-      LayoutAnimation.Presets
-        .easeInEaseOut,
+      LayoutAnimation.Presets.easeInEaseOut,
+    );
+
+    const totalRoomsAfterDelete =
+      quote.rooms.length - 1;
+
+    // Remove the exact room ID from the visual order.
+    setRoomOrder(previous =>
+      previous.filter(id => id !== roomId),
+    );
+
+    setVisibleRoomCount(current =>
+      Math.min(current, totalRoomsAfterDelete),
     );
 
     removeRoom(roomId);
+
+    Toast.show({
+      type: 'success',
+      text1: 'Room Deleted',
+      text2: `Room removed. ${totalRoomsAfterDelete} room${totalRoomsAfterDelete === 1 ? '' : 's'} remaining.`,
+      position: 'top',
+      visibilityTime: 2200,
+      topOffset: 60,
+    });
   };
 
   const selectCurrency = (
@@ -1753,17 +2082,7 @@ export default function QuoteScreen() {
             </Text>
           </View>
 
-          <View
-            style={styles.stepBadge}
-          >
-            <Text
-              style={
-                styles.stepBadgeText
-              }
-            >
-              01
-            </Text>
-          </View>
+          
         </View>
 
         <View
@@ -1905,10 +2224,13 @@ export default function QuoteScreen() {
               styles.addRoomButton
             }
           >
-            <Text
-              style={styles.addRoomText}
-            >
-              + Add Room
+            <Icon
+              name="plus"
+              size={17}
+              color="#FFFFFF"
+            />
+            <Text style={styles.addRoomText}>
+              Add Room
             </Text>
           </AnimatedButton>
         </View>
@@ -1920,11 +2242,15 @@ export default function QuoteScreen() {
           }
           min={1}
           max={20}
-          onChange={value =>
+          onChange={value => {
             updateGuests({
               adults: value,
-            })
-          }
+            });
+            syncRoomGuestsToQuoteGuests(
+              value,
+              quote.guests.children,
+            );
+          }}
         />
 
         <View
@@ -1938,11 +2264,15 @@ export default function QuoteScreen() {
           }
           min={0}
           max={20}
-          onChange={value =>
+          onChange={value => {
             updateGuests({
               children: value,
-            })
-          }
+            });
+            syncRoomGuestsToQuoteGuests(
+              quote.guests.adults,
+              value,
+            );
+          }}
         />
 
         <View
@@ -1975,311 +2305,422 @@ export default function QuoteScreen() {
     </>
   );
 
-  const renderRoomsTab = () => (
-    <>
-      <Card index={0}>
+  const renderRoomsHeader = () => (
+    <Card index={0}>
+      <View
+        style={
+          styles.sectionHeaderRow
+        }
+      >
         <View
           style={
-            styles.sectionHeaderRow
+            styles.sectionHeaderContent
           }
         >
-          <View
+          <SectionTitle>
+            ROOMS
+          </SectionTitle>
+
+          <Text
             style={
-              styles.sectionHeaderContent
+              styles.sectionDescription
             }
           >
-            <SectionTitle>
-              ROOMS
-            </SectionTitle>
+            Configure accommodation and nightly rates
+          </Text>
+        </View>
 
+        <AnimatedButton
+          onPress={handleAddRoom}
+          style={
+            styles.addRoomButton
+          }
+        >
+          <Text
+            style={styles.addRoomText}
+          >
+            + Add Room
+          </Text>
+        </AnimatedButton>
+      </View>
+    </Card>
+  );
+
+  const renderRoomItem = ({
+    item: room,
+    index,
+  }: {
+    item: (typeof quote.rooms)[number];
+    index: number;
+  }) => (
+    <Card index={index}>
+      <View
+        style={styles.roomBox}
+      >
+        <View
+          style={styles.roomHeader}
+        >
+          <View
+            style={styles.roomNumber}
+          >
             <Text
               style={
-                styles.sectionDescription
+                styles.roomNumberText
               }
             >
-              Configure accommodation and nightly rates
+              {String(
+                roomNumbersRef.current[room.id] ?? index + 1,
+              ).padStart(2, '0')}
             </Text>
           </View>
 
-          <AnimatedButton
-            onPress={handleAddRoom}
+          <View
             style={
-              styles.addRoomButton
+              styles.roomHeaderTitle
             }
           >
             <Text
-              style={styles.addRoomText}
+              style={styles.roomTitle}
             >
-              + Add Room
+              Room {roomNumbersRef.current[room.id] ?? index + 1}
             </Text>
-          </AnimatedButton>
+
+            <Text
+              style={
+                styles.roomSubtitle
+              }
+            >
+              Accommodation
+            </Text>
+          </View>
+
+          {quote.rooms.length > 1 && (
+            <AnimatedButton
+              onPress={() =>
+                handleRemoveRoom(
+                  room.id,
+                )
+              }
+              style={
+                styles.deleteButton
+              }
+            >
+              <Icon
+                name="trash-can-outline"
+                size={19}
+                color="#D64545"
+              />
+              <Text style={styles.deleteText}>
+                Delete
+              </Text>
+            </AnimatedButton>
+          )}
         </View>
 
-        {quote.rooms.map(
-          (room, index) => (
-            <View
-              key={room.id}
-              style={styles.roomBox}
+        <View
+          style={styles.twoColumns}
+        >
+          <View
+            style={styles.halfColumn}
+          >
+            <Text
+              style={styles.fieldLabel}
             >
-              <View
-                style={
-                  styles.roomHeader
+              Room Type
+            </Text>
+
+            <TextInput
+              value={room.name}
+              onChangeText={value =>
+                updateRoom(
+                  room.id,
+                  {
+                    name: value,
+                  },
+                )
+              }
+              placeholder="e.g. Deluxe"
+              placeholderTextColor="#9BA6A0"
+              style={styles.input}
+            />
+          </View>
+
+          <View
+            style={styles.halfColumn}
+          >
+            <Text
+              style={styles.fieldLabel}
+            >
+              Nightly Rate
+            </Text>
+
+            <TextInput
+              value={
+                room.rate
+                  ? String(room.rate)
+                  : ''
+              }
+              keyboardType="decimal-pad"
+              onChangeText={value =>
+                updateRoom(
+                  room.id,
+                  {
+                    rate:
+                      Number(value) || 0,
+                  },
+                )
+              }
+              placeholder="0"
+              placeholderTextColor="#9BA6A0"
+              style={styles.input}
+            />
+          </View>
+        </View>
+
+        <View style={styles.roomGuestHeader}>
+          <View style={styles.roomGuestHeaderText}>
+            <Text style={styles.fieldLabel}>
+              Guests in this room
+            </Text>
+            <Text style={styles.roomGuestHint}>
+              Set the guest allocation for this room.
+            </Text>
+          </View>
+
+          <View style={styles.roomGuestBadge}>
+            <Icon
+              name="account-group-outline"
+              size={15}
+              color="#16733F"
+            />
+            <Text style={styles.roomGuestBadgeText}>
+              {getRoomGuests(room).adults +
+                getRoomGuests(room).children}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.roomGuestRow}>
+          <View style={styles.roomGuestCounter}>
+            <View style={styles.roomGuestLabelWrap}>
+              <Icon name="account-outline" size={17} color="#66736B" />
+              <Text style={styles.roomGuestLabel}>Adults</Text>
+            </View>
+
+            <View style={styles.counterControls}>
+              <AnimatedButton
+                onPress={() =>
+                  updateRoomGuestCount(
+                    room,
+                    'adults',
+                    getRoomGuests(room).adults - 1,
+                  )
                 }
-              >
-                <View
-                  style={
-                    styles.roomNumber
-                  }
-                >
-                  <Text
-                    style={
-                      styles.roomNumberText
-                    }
-                  >
-                    {String(
-                      index + 1,
-                    ).padStart(2, '0')}
-                  </Text>
-                </View>
-
-                <View
-                  style={
-                    styles.roomHeaderTitle
-                  }
-                >
-                  <Text
-                    style={
-                      styles.roomTitle
-                    }
-                  >
-                    Room {index + 1}
-                  </Text>
-
-                  <Text
-                    style={
-                      styles.roomSubtitle
-                    }
-                  >
-                    Accommodation
-                  </Text>
-                </View>
-
-                {quote.rooms.length >
-                  1 && (
-                  <AnimatedButton
-                    onPress={() =>
-                      handleRemoveRoom(
-                        room.id,
-                      )
-                    }
-                    style={
-                      styles.deleteButton
-                    }
-                  >
-                    <Text
-                      style={
-                        styles.deleteText
-                      }
-                    >
-                      Delete
-                    </Text>
-                  </AnimatedButton>
-                )}
-              </View>
-
-              <View
-                style={
-                  styles.twoColumns
-                }
-              >
-                <View
-                  style={
-                    styles.halfColumn
-                  }
-                >
-                  <Text
-                    style={
-                      styles.fieldLabel
-                    }
-                  >
-                    Room Type
-                  </Text>
-
-                  <TextInput
-                    value={room.name}
-                    onChangeText={value =>
-                      updateRoom(
-                        room.id,
-                        {
-                          name: value,
-                        },
-                      )
-                    }
-                    placeholder="e.g. Deluxe"
-                    placeholderTextColor="#9BA6A0"
-                    style={styles.input}
-                  />
-                </View>
-
-                <View
-                  style={
-                    styles.halfColumn
-                  }
-                >
-                  <Text
-                    style={
-                      styles.fieldLabel
-                    }
-                  >
-                    Nightly Rate
-                  </Text>
-
-                  <TextInput
-                    value={
-                      room.rate
-                        ? String(
-                            room.rate,
-                          )
-                        : ''
-                    }
-                    keyboardType="decimal-pad"
-                    onChangeText={value =>
-                      updateRoom(
-                        room.id,
-                        {
-                          rate:
-                            Number(
-                              value,
-                            ) || 0,
-                        },
-                      )
-                    }
-                    placeholder="0"
-                    placeholderTextColor="#9BA6A0"
-                    style={styles.input}
-                  />
-                </View>
-              </View>
-
-              <Text
+                disabled={getRoomGuests(room).adults <= 1}
                 style={[
-                  styles.fieldLabel,
-                  styles.rateAppliesLabel,
+                  styles.counterButton,
+                  getRoomGuests(room).adults <= 1 &&
+                    styles.counterButtonDisabled,
                 ]}
               >
-                Rate applies
+                <Text style={styles.counterButtonText}>−</Text>
+              </AnimatedButton>
+
+              <Text style={styles.counterValue}>
+                {getRoomGuests(room).adults}
               </Text>
 
-              <View
-                style={styles.toggleRow}
+              <AnimatedButton
+                onPress={() =>
+                  updateRoomGuestCount(
+                    room,
+                    'adults',
+                    getRoomGuests(room).adults + 1,
+                  )
+                }
+                disabled={getRoomGuests(room).adults >= 20}
+                style={[
+                  styles.counterButton,
+                  getRoomGuests(room).adults >= 20 &&
+                    styles.counterButtonDisabled,
+                ]}
               >
-                <AnimatedButton
-                  onPress={() =>
-                    updateRoom(
-                      room.id,
-                      {
-                        pricingType:
-                          'perRoom',
-                      },
-                    )
-                  }
-                  style={[
-                    styles.toggleButton,
-                    room.pricingType ===
-                      'perRoom' &&
-                      styles.toggleActive,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.toggleText,
-                      room.pricingType ===
-                        'perRoom' &&
-                        styles.toggleActiveText,
-                    ]}
-                  >
-                    Per Room
-                  </Text>
-                </AnimatedButton>
-
-                <AnimatedButton
-                  onPress={() =>
-                    updateRoom(
-                      room.id,
-                      {
-                        pricingType:
-                          'perGuest',
-                      },
-                    )
-                  }
-                  style={[
-                    styles.toggleButton,
-                    room.pricingType ===
-                      'perGuest' &&
-                      styles.toggleActive,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.toggleText,
-                      room.pricingType ===
-                        'perGuest' &&
-                        styles.toggleActiveText,
-                    ]}
-                  >
-                    Per Guest
-                  </Text>
-                </AnimatedButton>
-              </View>
+                <Text style={styles.counterButtonText}>+</Text>
+              </AnimatedButton>
             </View>
-          ),
-        )}
-      </Card>
+          </View>
 
-      <View
-        style={
-          styles.roomTotalPreview
-        }
-      >
-        <View>
-          <Text
-            style={
-              styles.previewCaption
-            }
-          >
-            CURRENT ROOM SUBTOTAL
-          </Text>
+          <View style={styles.roomGuestCounter}>
+            <View style={styles.roomGuestLabelWrap}>
+              <Icon name="account-child-outline" size={17} color="#66736B" />
+              <Text style={styles.roomGuestLabel}>Children</Text>
+            </View>
 
-          <Text
-            style={
-              styles.previewAmount
-            }
-          >
-            {formatMoney(
-              roomSubtotal,
-              quote.currency.code,
-            )}
-          </Text>
+            <View style={styles.counterControls}>
+              <AnimatedButton
+                onPress={() =>
+                  updateRoomGuestCount(
+                    room,
+                    'children',
+                    getRoomGuests(room).children - 1,
+                  )
+                }
+                disabled={getRoomGuests(room).children <= 0}
+                style={[
+                  styles.counterButton,
+                  getRoomGuests(room).children <= 0 &&
+                    styles.counterButtonDisabled,
+                ]}
+              >
+                <Text style={styles.counterButtonText}>−</Text>
+              </AnimatedButton>
+
+              <Text style={styles.counterValue}>
+                {getRoomGuests(room).children}
+              </Text>
+
+              <AnimatedButton
+                onPress={() =>
+                  updateRoomGuestCount(
+                    room,
+                    'children',
+                    getRoomGuests(room).children + 1,
+                  )
+                }
+                disabled={getRoomGuests(room).children >= 20}
+                style={[
+                  styles.counterButton,
+                  getRoomGuests(room).children >= 20 &&
+                    styles.counterButtonDisabled,
+                ]}
+              >
+                <Text style={styles.counterButtonText}>+</Text>
+              </AnimatedButton>
+            </View>
+          </View>
         </View>
 
         <Text
-          style={
-            styles.previewNights
-          }
+          style={[
+            styles.fieldLabel,
+            styles.rateAppliesLabel,
+          ]}
         >
-          {totalNights || 0}{' '}
-          nights
+          Rate applies
+        </Text>
+
+        <View
+          style={styles.toggleRow}
+        >
+          <AnimatedButton
+            onPress={() =>
+              updateRoom(
+                room.id,
+                {
+                  pricingType: 'perRoom',
+                },
+              )
+            }
+            style={[
+              styles.toggleButton,
+              room.pricingType ===
+                'perRoom' &&
+                styles.toggleActive,
+            ]}
+          >
+            <Text
+              style={[
+                styles.toggleText,
+                room.pricingType ===
+                  'perRoom' &&
+                  styles.toggleActiveText,
+              ]}
+            >
+              Per Room
+            </Text>
+          </AnimatedButton>
+
+          <AnimatedButton
+            onPress={() =>
+              updateRoom(
+                room.id,
+                {
+                  pricingType: 'perGuest',
+                },
+              )
+            }
+            style={[
+              styles.toggleButton,
+              room.pricingType ===
+                'perGuest' &&
+                styles.toggleActive,
+            ]}
+          >
+            <Text
+              style={[
+                styles.toggleText,
+                room.pricingType ===
+                  'perGuest' &&
+                  styles.toggleActiveText,
+              ]}
+            >
+              Per Guest
+            </Text>
+          </AnimatedButton>
+        </View>
+      </View>
+    </Card>
+  );
+
+  const renderRoomsFooter = () => (
+  <>
+    {isLoadingMoreRooms && (
+      <View
+        style={{
+          paddingVertical: 16,
+          alignItems: 'center',
+        }}
+      >
+        <Text
+          style={{
+            color: '#16733F',
+            fontWeight: '700',
+          }}
+        >
+          Loading more rooms...
+        </Text>
+      </View>
+    )}
+
+    <View
+      style={styles.roomTotalPreview}
+    >
+      <View>
+        <Text
+          style={styles.previewCaption}
+        >
+          CURRENT ROOM SUBTOTAL
+        </Text>
+
+        <Text
+          style={styles.previewAmount}
+        >
+          {formatMoney(
+            roomSubtotal,
+            quote.currency.code,
+          )}
         </Text>
       </View>
 
-      <NextButton
-        label="Continue to Pricing"
-        onPress={goNext}
-        onBack={goBack}
-        showBack
-      />
-    </>
-  );
+      <Text
+        style={styles.previewNights}
+      >
+        {totalNights || 0}{' '}
+        nights
+      </Text>
+    </View>
+  </>
+);
 
   const renderPricingTab = () => (
     <>
@@ -2614,7 +3055,7 @@ export default function QuoteScreen() {
             </Text>
           </View>
 
-          <View
+          <View 
             style={
               styles.pricingStatus
             }
@@ -2657,7 +3098,7 @@ export default function QuoteScreen() {
       <NextButton
         label="Generate Quote"
         onPress={goNext}
-        onBack={goBack}
+        // onBack={goBack}
         showBack
       />
     </>
@@ -2718,6 +3159,87 @@ export default function QuoteScreen() {
             />
           </View>
         </View>
+
+        <View style={styles.quoteRoomsSection}>
+          <View style={styles.quoteRoomsSectionHeader}>
+            <Text style={styles.quoteRoomsSectionTitle}>
+              ROOMS & GUEST ALLOCATION
+            </Text>
+            <View style={styles.nightBadge}>
+              <Text style={styles.nightBadgeText}>
+                {quote.rooms.length} {quote.rooms.length === 1 ? 'ROOM' : 'ROOMS'}
+              </Text>
+            </View>
+          </View>
+
+          {quote.rooms.map((room, index) => {
+            const guests = getRoomGuests(room);
+            const totalRoomGuests = guests.adults + guests.children;
+            const guestMultiplier =
+              room.pricingType === 'perGuest' ? totalRoomGuests : 1;
+            const singleRoomSubtotal =
+              totalNights > 0
+                ? room.rate * room.quantity * totalNights * guestMultiplier
+                : 0;
+            const displayRoomNumber =
+              roomNumbersRef.current[room.id] ?? index + 1;
+
+            return (
+              <View key={room.id} style={styles.quoteRoomCard}>
+                <View style={styles.quoteRoomTopRow}>
+                  <View style={styles.quoteRoomTitleRow}>
+                    <View style={styles.quoteRoomBadge}>
+                      <Text style={styles.quoteRoomBadgeText}>
+                        R{String(displayRoomNumber).padStart(2, '0')}
+                      </Text>
+                    </View>
+                    <Text style={styles.quoteRoomName} numberOfLines={1}>
+                      {room.name || `Room ${displayRoomNumber}`}
+                    </Text>
+                  </View>
+                  <Text style={styles.quoteRoomSubtotal}>
+                    {formatMoney(singleRoomSubtotal, quote.currency.code)}
+                  </Text>
+                </View>
+
+                <View style={styles.quoteRoomDetailRow}>
+                  <View style={styles.quoteRoomGuestsWrap}>
+                    <View style={styles.quoteGuestPill}>
+                      <Icon
+                        name="account-outline"
+                        size={13}
+                        color="#16733F"
+                      />
+                      <Text style={styles.quoteGuestPillText}>
+                        {guests.adults} {guests.adults === 1 ? 'Adult' : 'Adults'}
+                      </Text>
+                    </View>
+                    {guests.children > 0 && (
+                      <View style={styles.quoteGuestPill}>
+                        <Icon
+                          name="account-child-outline"
+                          size={13}
+                          color="#16733F"
+                        />
+                        <Text style={styles.quoteGuestPillText}>
+                          {guests.children}{' '}
+                          {guests.children === 1 ? 'Child' : 'Children'}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+
+                  <Text style={styles.quoteRoomPricingCalc}>
+                    {formatMoney(room.rate, quote.currency.code)}/nt
+                    {room.pricingType === 'perGuest' ? ' · Per Guest' : ' · Per Room'}
+                  </Text>
+                </View>
+              </View>
+            );
+          })}
+        </View>
+
+        <View style={styles.quoteRoomDivider} />
 
         <View
           style={
@@ -2992,9 +3514,6 @@ export default function QuoteScreen() {
   const renderCurrentTab =
     () => {
       switch (activeTab) {
-        case 'rooms':
-          return renderRoomsTab();
-
         case 'pricing':
           return renderPricingTab();
 
@@ -3007,10 +3526,41 @@ export default function QuoteScreen() {
       }
     };
 
+  const renderScreenHeader = () => (
+    <>
+      <View
+        style={styles.header}
+      >
+        <View
+          style={styles.brandRow}
+        >
+          <AnimatedLogo />
+
+          <View>
+            <Text
+              style={styles.brandTitle}
+            >
+              Quote Generator
+            </Text>
+
+            <Text
+              style={styles.brandSubtitle}
+            >
+              HOSPITALITY SUITE
+            </Text>
+          </View>
+        </View>
+      </View>
+      <AnimatedHeading />
+
+
+    </>
+  );
+
   return (
     <SafeAreaView
       style={styles.screen}
-      edges={['top']}
+      edges={['top', 'bottom']}
     >
       <KeyboardAvoidingView
         style={styles.flex}
@@ -3020,80 +3570,80 @@ export default function QuoteScreen() {
             : undefined
         }
       >
-        <ScrollView
-          contentContainerStyle={
-            styles.content
-          }
-          showsVerticalScrollIndicator={
-            false
-          }
-          keyboardShouldPersistTaps="handled"
-        >
-          <View
-            style={styles.header}
-          >
-            <View
-              style={styles.brandRow}
-            >
-              <AnimatedLogo />
+       {activeTab === 'rooms' ? (
+  <View style={styles.roomsContainer}>
+    <FlatList
+      data={orderedRooms.slice(
+        0,
+        visibleRoomCount,
+      )}
+      keyExtractor={item => item.id}
+      renderItem={renderRoomItem}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      onEndReached={
+        handleLoadMoreRooms
+      }
+      onEndReachedThreshold={0.5}
+      initialNumToRender={
+        ROOMS_PAGE_SIZE
+      }
+      maxToRenderPerBatch={
+        ROOMS_PAGE_SIZE
+      }
+      windowSize={5}
+      removeClippedSubviews={
+        Platform.OS === 'android'
+      }
+      contentContainerStyle={[
+        styles.content,
+        styles.roomsListContent,
+      ]}
+      ListHeaderComponent={
+        <>
+          {renderScreenHeader()}
+          {renderRoomsHeader()}
+        </>
+      }
+      ListFooterComponent={
+        renderRoomsFooter
+      }
+    />
 
-              <View>
-                <Text
-                  style={
-                    styles.brandTitle
-                  }
-                >
-                  Quote Generator
-                </Text>
-
-                <Text
-                  style={
-                    styles.brandSubtitle
-                  }
-                >
-                  HOSPITALITY SUITE
-                </Text>
-              </View>
-            </View>
-
-            <View
-              style={
-                styles.headerStatus
-              }
-            >
-              <View
-                style={
-                  styles.statusDot
-                }
-              />
-
-              <Text
-                style={styles.statusText}
-              >
-                READY
-              </Text>
-            </View>
-          </View>
-
-          <AnimatedHeading />
-
-          <View
-            style={
-              styles.tabsContainer
+    <View
+      // style={styles.stickyRoomsFooter}
+    >
+      <NextButton
+        label="Continue to Pricing"
+        onPress={goNext}
+        // showBack
+      />
+    </View>
+  </View>
+) : (
+          <ScrollView
+            contentContainerStyle={
+              styles.content
             }
+            showsVerticalScrollIndicator={
+              false
+            }
+            keyboardShouldPersistTaps="handled"
           >
-            <TabBar
-              activeTab={activeTab}
-              onTabPress={
-                handleTabPress
-              }
-            />
-          </View>
+            {renderScreenHeader()}
 
-          <View>
-            {renderCurrentTab()}
-          </View>
-        </ScrollView>
+            <View>
+              {renderCurrentTab()}
+            </View>
+          </ScrollView>
+        )}
+
+        <View style={styles.bottomTabBar}>
+          <TabBar
+            activeTab={activeTab}
+            onTabPress={handleTabPress}
+          />
+        </View>
       </KeyboardAvoidingView>
 
       <CalendarModal
