@@ -23,7 +23,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { useQuoteState } from '../hooks/useQuoteState';
 import { Room } from '../types';
 import { getDefaultRate } from '../lib/roomRates';
-import styles from './style/QuoteScreen.styles';
+import styles, { COLORS } from './style/QuoteScreen.styles';
+import { getCurrency } from '../lib/currencies';
 
 type CurrencyOption = { code: string; name: string; symbol: string };
 type Tone = 'friendly' | 'formal' | 'casual';
@@ -81,6 +82,8 @@ const CURRENCIES: CurrencyOption[] = [
   { code: 'PKR', name: 'Pakistani Rupee', symbol: '₨' },
   { code: 'AED', name: 'UAE Dirham', symbol: 'د.إ' },
   { code: 'SAR', name: 'Saudi Riyal', symbol: '﷼' },
+  { code: 'CAD', name: 'Canadian Dollar', symbol: 'CA$' },
+  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
 ];
 
 const EXCHANGE_RATES: Record<string, number> = {
@@ -90,6 +93,8 @@ const EXCHANGE_RATES: Record<string, number> = {
   PKR: 280,
   AED: 3.67,
   SAR: 3.75,
+  CAD: 1.35,
+  AUD: 1.52,
 };
 
 const TABS: {
@@ -489,75 +494,47 @@ const TabButton = React.memo(function TabButton({
   selected: boolean;
   onPress: () => void;
 }) {
-  const press = useRef(new Animated.Value(1)).current;
   const active = useRef(new Animated.Value(selected ? 1 : 0)).current;
 
   useEffect(() => {
     Animated.spring(active, {
       toValue: selected ? 1 : 0,
-      speed: 18,
-      bounciness: 8,
+      speed: 16,
+      bounciness: 9,
       useNativeDriver: true,
     }).start();
   }, [selected, active]);
 
-  const animatePress = (toValue: number) =>
-    Animated.spring(press, {
-      toValue,
-      speed: 40,
-      bounciness: 6,
-      useNativeDriver: true,
-    }).start();
-
-  const bubbleScale = active.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.6, 1],
-  });
-
-  const lift = active.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, -1],
-  });
+  const circleScale = active.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] });
+  const iconLift = active.interpolate({ inputRange: [0, 1], outputRange: [0, -28] });
+  const labelLift = active.interpolate({ inputRange: [0, 1], outputRange: [6, 0] });
 
   return (
     <Pressable
       onPress={onPress}
-      onPressIn={() => animatePress(0.9)}
-      onPressOut={() => animatePress(1)}
       style={styles.tabPressable}
       accessibilityRole="tab"
       accessibilityState={{ selected }}
       accessibilityLabel={`${tab.label} tab`}
-      hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
     >
       <Animated.View
-        style={[styles.tabItem, { transform: [{ scale: press }] }]}
-      >
-        <Animated.View style={[styles.tabPill, { opacity: active }]} />
+        style={[styles.tabCircle, { opacity: active, transform: [{ scale: circleScale }] }]}
+      />
 
-        <Animated.View
-          style={[styles.tabIconWrap, { transform: [{ translateY: lift }] }]}
-        >
-          <Animated.View
-            style={[
-              styles.tabIconBg,
-              { opacity: active, transform: [{ scale: bubbleScale }] },
-            ]}
-          />
-          <Icon
-            name={tab.icon}
-            size={18}
-            color={selected ? '#FFFFFF' : '#9BA8A0'}
-          />
-        </Animated.View>
-
-        <Text
-          style={[styles.tabLabel, selected && styles.tabLabelActive]}
-          numberOfLines={1}
-        >
-          {tab.label}
-        </Text>
+      <Animated.View style={{ transform: [{ translateY: iconLift }] }}>
+        <Icon
+          name={tab.icon}
+          size={selected ? 26 : 23}
+          color={selected ? COLORS.accent : COLORS.labelIdle}
+        />
       </Animated.View>
+
+      <Animated.Text
+        style={[styles.tabLabel, { opacity: active, transform: [{ translateY: labelLift }] }]}
+        numberOfLines={1}
+      >
+        {tab.label}
+      </Animated.Text>
     </Pressable>
   );
 });
@@ -1181,7 +1158,7 @@ export default function QuoteScreen() {
   const [activeTab, setActiveTab] = useState<TabKey>('stay');
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [calendarField, setCalendarField] = useState<'checkIn' | 'checkOut' | null>(null);
-  const [currencyModal, setCurrencyModal] = useState(false);
+  const [currencyModalMode, setCurrencyModalMode] = useState<'base' | 'display' | null>(null);
   const [visibleRoomCount, setVisibleRoomCount] = useState(ROOMS_PAGE_SIZE);
   const [isLoadingMoreRooms, setIsLoadingMoreRooms] = useState(false);
 
@@ -1545,10 +1522,22 @@ export default function QuoteScreen() {
     });
   };
 
-  const selectCurrency = useCallback((currency: string) => {
-    setTargetCurrency(currency);
-    setCurrencyModal(false);
-  }, []);
+  const selectCurrency = useCallback((currencyCode: string) => {
+    if (currencyModalMode === 'base') {
+      const selectedCurrencyObj = getCurrency(currencyCode);
+      const currencyOption = CURRENCIES.find(c => c.code === currencyCode);
+      updateQuote({
+        currency: {
+          code: currencyCode,
+          name: currencyOption?.name || selectedCurrencyObj.name,
+          symbol: currencyOption?.symbol || selectedCurrencyObj.symbol,
+        },
+      });
+    } else {
+      setTargetCurrency(currencyCode);
+    }
+    setCurrencyModalMode(null);
+  }, [currencyModalMode, updateQuote]);
 
   const message = useMemo(() => {
     if (!datesSelected || finalTotal <= 0) {
@@ -2018,17 +2007,19 @@ export default function QuoteScreen() {
         <View style={styles.twoColumns}>
           <View style={styles.halfColumn}>
             <Text style={styles.fieldLabel}>Base Currency</Text>
-            <View style={styles.selectBox}>
-              <Text style={styles.selectText}>{quote.currency.code}</Text>
-              <Icon name="lock-outline" size={17} color="#9BA59F" />
-            </View>
+            <AnimatedButton
+              style={styles.selectBox}
+              onPress={() => setCurrencyModalMode('base')}
+            >              <Text style={styles.selectText}>{quote.currency.code}</Text>
+              <Icon name="chevron-down" size={19} color="#16733F" />
+            </AnimatedButton>
           </View>
 
           <View style={styles.halfColumn}>
             <Text style={styles.fieldLabel}>Display In</Text>
             <AnimatedButton
               style={styles.selectBox}
-              onPress={() => setCurrencyModal(true)}
+              onPress={() => setCurrencyModalMode('display')}
             >
               <Text style={styles.selectText}>{targetCurrency}</Text>
               <Icon name="chevron-down" size={19} color="#16733F" />
@@ -2405,23 +2396,27 @@ export default function QuoteScreen() {
       />
 
       <Modal
-        visible={currencyModal}
+        visible={currencyModalMode !== null}
         transparent
         animationType="slide"
-        onRequestClose={() => setCurrencyModal(false)}
+        onRequestClose={() => setCurrencyModalMode(null)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.currencyModal}>
             <View style={styles.modalHeader}>
               <View>
-                <Text style={styles.modalTitle}>Display Currency</Text>
-                <Text style={styles.modalSubtitle}>
-                  Choose the currency for displaying your quote
-                </Text>
+                <Text style={styles.modalTitle}>
+                  {currencyModalMode === 'base'
+                    ? 'Base Currency'
+                    : 'Display Currency'}
+                </Text>                <Text style={styles.modalSubtitle}>
+                  {currencyModalMode === 'base'
+                    ? 'Choose default base currency for rates and totals'
+                    : 'Choose the currency for displaying your quote'}                </Text>
               </View>
 
               <Pressable
-                onPress={() => setCurrencyModal(false)}
+                onPress={() => setCurrencyModalMode(null)}
                 style={styles.modalClose}
               >
                 <Text style={styles.modalCloseText}>×</Text>
@@ -2430,8 +2425,10 @@ export default function QuoteScreen() {
 
             <ScrollView showsVerticalScrollIndicator={false}>
               {CURRENCIES.map(currency => {
-                const selected = targetCurrency === currency.code;
-
+                const selected =
+                  currencyModalMode === 'base'
+                    ? quote.currency.code === currency.code
+                    : targetCurrency === currency.code;
                 return (
                   <Pressable
                     key={currency.code}

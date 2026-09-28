@@ -1,6 +1,6 @@
 import { Platform, StyleSheet } from 'react-native';
 
-const COLORS = {
+export const COLORS = {
   screenBg: '#F2F7F4',
   barBg: '#151C18',
   accent: '#16733F',
@@ -236,69 +236,53 @@ const styles = StyleSheet.create({
   // -------------------------------------------------------------
   bottomTabBar: {
     backgroundColor: COLORS.screenBg,
-    paddingTop: 6,
+    paddingTop: 28, // room for the raised circle
     paddingBottom: Platform.OS === 'ios' ? 14 : 10,
   },
 
   tabBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 66,
+    height: 64,
     marginHorizontal: 16,
-    padding: 6,
-    borderRadius: 26,
+    borderRadius: 22,
     backgroundColor: COLORS.barBg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.28,
-    shadowRadius: 18,
-    elevation: 12,
+    shadowColor: '#10291D',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 8,
   },
 
   tabPressable: {
     flex: 1,
-  },
-
-  tabItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-
-  // Soft highlight behind the active tab (fades in)
-  tabPill: {
-    ...StyleSheet.absoluteFill,
-    borderRadius: 20,
-    backgroundColor: 'rgba(22, 115, 63, 0.16)',
-  },
-
-  tabIconWrap: {
-    width: 32,
-    height: 32,
-    marginBottom: 3,
+    height: 64,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
-  // Round green bubble (scales in behind the icon)
-  tabIconBg: {
-    ...StyleSheet.absoluteFill,
-    borderRadius: 16,
-    backgroundColor: COLORS.accent,
-    shadowColor: COLORS.accent,
+  tabCircle: {
+    position: 'absolute',
+    top: -24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: COLORS.white,
+    borderWidth: 5,
+    borderColor: COLORS.screenBg,
+    shadowColor: '#10291D',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
+    shadowOpacity: 0.12,
     shadowRadius: 8,
   },
 
   tabLabel: {
+    position: 'absolute',
+    bottom: 8,
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '800',
     letterSpacing: 0.3,
-    color: COLORS.labelIdle,
+    color: COLORS.accent,
   },
 
   tabLabelActive: {
