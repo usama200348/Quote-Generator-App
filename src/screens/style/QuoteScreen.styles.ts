@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
   // -------------------------------------------------------------
   bottomTabBar: {
     backgroundColor: COLORS.screenBg,
-    paddingTop: 6,
+    paddingTop: 10,
     paddingBottom: Platform.OS === 'ios' ? 14 : 10,
     overflow: 'visible',
   },
