@@ -2069,13 +2069,6 @@ export default function QuoteScreen() {
           value={`+ ${formatMoney(taxAmount, quote.currency.code)}`}
         />
       </Card>
-
-      <NextButton
-        label="Generate Quote"
-        onPress={goNext}
-        onBack={goBack}
-        showBack
-      />
     </>
   );
 
@@ -2365,6 +2358,26 @@ export default function QuoteScreen() {
             <View style={styles.stickyRoomsFooter}>
               <NextButton
                 label="Continue to Pricing"
+                onPress={goNext}
+                onBack={goBack}
+                showBack
+              />
+            </View>
+          </View>
+        ) : activeTab === 'pricing' ? (
+          <View style={styles.roomsContainer}>
+            <ScrollView
+              contentContainerStyle={styles.content}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
+              {screenHeaderElement}
+              <View>{renderPricingTab()}</View>
+            </ScrollView>
+
+            <View style={styles.stickyRoomsFooter}>
+              <NextButton
+                label="Generate Quote"
                 onPress={goNext}
                 onBack={goBack}
                 showBack
