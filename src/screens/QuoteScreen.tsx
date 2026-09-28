@@ -2159,10 +2159,7 @@ export default function QuoteScreen() {
           </View>
         </View>
 
-        <View style={styles.headerStatus}>
-          <View style={styles.statusDot} />
-          <Text style={styles.statusText}>READY</Text>
-        </View>
+       
       </View>
 
       <AnimatedHeading />
