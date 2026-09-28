@@ -11,13 +11,16 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    paddingBottom: 24,
+    paddingBottom: 28,
   },
 
+  // -------------------------------------------------------------
+  // Header & Brand
+  // -------------------------------------------------------------
   header: {
-    minHeight: 74,
+    minHeight: 70,
     paddingHorizontal: 18,
-    paddingVertical: 13,
+    paddingVertical: 12,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E5ECE7',
@@ -25,12 +28,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     shadowColor: '#10291D',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.04,
-    shadowRadius: 10,
+    shadowRadius: 8,
     elevation: 2,
   },
 
@@ -40,21 +40,18 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 45,
-    height: 45,
-    borderRadius: 15,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     backgroundColor: '#16733F',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 11,
+    marginRight: 12,
     shadowColor: '#16733F',
-    shadowOffset: {
-      width: 0,
-      height: 7,
-    },
-    shadowOpacity: 0.22,
-    shadowRadius: 12,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4,
   },
 
   logoText: {
@@ -64,23 +61,24 @@ const styles = StyleSheet.create({
   },
 
   brandTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '900',
     color: '#102119',
+    letterSpacing: -0.2,
   },
 
   brandSubtitle: {
-    fontSize: 8,
+    fontSize: 10,
     fontWeight: '800',
-    color: '#8A9690',
-    marginTop: 3,
-    letterSpacing: 1.2,
+    color: '#718078',
+    marginTop: 2,
+    letterSpacing: 1.1,
   },
 
   headerStatus: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 9,
+    paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 20,
     backgroundColor: '#EFF8F2',
@@ -92,67 +90,161 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#1B9A55',
-    marginRight: 5,
+    backgroundColor: '#16A34A',
+    marginRight: 6,
   },
 
   statusText: {
-    fontSize: 8,
-    fontWeight: '900',
+    fontSize: 11,
+    fontWeight: '800',
     color: '#16733F',
-    letterSpacing: 0.7,
+    letterSpacing: 0.5,
   },
 
+  // -------------------------------------------------------------
+  // Heading
+  // -------------------------------------------------------------
   headingContainer: {
     paddingHorizontal: 18,
-    paddingTop: 26,
-    paddingBottom: 15,
+    paddingTop: 18,
+    paddingBottom: 14,
   },
 
   headingAccent: {
     width: 34,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#1B7A43',
-    marginBottom: 11,
+    backgroundColor: '#16733F',
+    marginBottom: 8,
   },
 
   pageTitle: {
-    fontSize: 29,
+    fontSize: 26,
     fontWeight: '900',
     color: '#101714',
-    letterSpacing: -0.8,
+    letterSpacing: -0.6,
   },
 
   pageSubtitle: {
-    marginTop: 7,
-    fontSize: 12,
+    marginTop: 5,
+    fontSize: 13,
     lineHeight: 19,
     fontWeight: '500',
-    color: '#7B8781',
-    maxWidth: 350,
+    color: '#65736C',
+    maxWidth: 360,
   },
 
-  tabsContainer: {
-    display: 'none',
+  // -------------------------------------------------------------
+  // Step Progress Bar (Stay -> Rooms -> Pricing -> Quote)
+  // -------------------------------------------------------------
+  stepProgressContainer: {
+    marginHorizontal: 16,
+    marginBottom: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E2EBE5',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    shadowColor: '#10291D',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+
+  stepPressable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 4,
+    paddingHorizontal: 4,
+  },
+
+  stepPill: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#EFF3F0',
+  },
+
+  stepPillActive: {
+    backgroundColor: '#16733F',
+    shadowColor: '#16733F',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+
+  stepPillCompleted: {
+    backgroundColor: '#EAF6EE',
+    borderWidth: 1,
+    borderColor: '#C8E8D3',
+  },
+
+  stepPillTextActive: {
+    fontSize: 11,
+    fontWeight: '900',
+    color: '#FFFFFF',
+  },
+
+  stepPillTextUpcoming: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#7C8A82',
+  },
+
+  stepLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#718078',
+  },
+
+  stepLabelActive: {
+    color: '#16733F',
+    fontWeight: '900',
+  },
+
+  stepDivider: {
+    flex: 1,
+    height: 2,
+    backgroundColor: '#E8EFEA',
+    marginHorizontal: 4,
+    borderRadius: 1,
+  },
+
+  stepDividerCompleted: {
+    backgroundColor: '#16733F',
+  },
+
+  // -------------------------------------------------------------
+  // Bottom Tab Bar (No 01, 02, 03 numbers!)
+  // -------------------------------------------------------------
+  bottomTabBar: {
+    backgroundColor: '#F2F7F4',
+    paddingTop: 3,
+    paddingBottom: Platform.OS === 'ios' ? 14 : 8,
   },
 
   tabBar: {
-    minHeight: 64,
+    minHeight: 62,
     marginHorizontal: 16,
-    marginVertical: 6,
+    marginVertical: 4,
     paddingHorizontal: 6,
     paddingVertical: 6,
-    borderRadius: 20,
+    borderRadius: 22,
     backgroundColor: '#151C18',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     shadowColor: '#07100B',
-    shadowOffset: {
-      width: 0,
-      height: 6,
-    },
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.22,
     shadowRadius: 14,
     elevation: 8,
@@ -168,7 +260,7 @@ const styles = StyleSheet.create({
   tabItem: {
     flex: 1,
     minWidth: 0,
-    borderRadius: 15,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'column',
@@ -178,30 +270,30 @@ const styles = StyleSheet.create({
   },
 
   tabItemActive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderWidth: 1,
-    borderColor: 'rgba(27, 122, 67, 0.45)',
+    borderColor: 'rgba(22, 115, 63, 0.5)',
   },
 
   tabIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     textAlign: 'center',
     textAlignVertical: 'center',
-    marginBottom: 3,
+    marginBottom: 2,
     backgroundColor: 'transparent',
-    lineHeight: 32,
+    lineHeight: 30,
   },
 
   tabIconActive: {
     backgroundColor: '#16733F',
     color: '#FFFFFF',
     shadowColor: '#16733F',
-    shadowOffset: { width: 0, height: 3 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.35,
-    shadowRadius: 6,
-    elevation: 4,
+    shadowRadius: 5,
+    elevation: 3,
   },
 
   tabTextContainer: {
@@ -209,24 +301,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  tabNumber: {
-    fontSize: 8,
-    fontWeight: '800',
-    color: '#6E7C74',
-    letterSpacing: 0.5,
-    marginBottom: 1,
-  },
-
-  tabNumberActive: {
-    color: '#5ED895',
-  },
-
   tabLabel: {
     fontSize: 11,
-    fontWeight: '700',
-    color: '#909F96',
+    fontWeight: '600',
+    color: '#8A9790',
     textAlign: 'center',
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
   },
 
   tabLabelActive: {
@@ -234,27 +314,21 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 
-  bottomTabBar: {
-    backgroundColor: '#F2F7F4',
-    paddingTop: 2,
-    paddingBottom: Platform.OS === 'ios' ? 12 : 8,
-  },
-
+  // -------------------------------------------------------------
+  // Cards & Layout
+  // -------------------------------------------------------------
   card: {
     marginHorizontal: 16,
     marginBottom: 14,
     padding: 18,
     backgroundColor: '#FFFFFF',
-    borderRadius: 22,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#E3EBE6',
+    borderColor: '#E2EBE5',
     shadowColor: '#10291D',
-    shadowOffset: {
-      width: 0,
-      height: 7,
-    },
-    shadowOpacity: 0.055,
-    shadowRadius: 17,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.045,
+    shadowRadius: 14,
     elevation: 3,
   },
 
@@ -262,14 +336,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 15,
+    marginBottom: 16,
   },
 
   sectionHeaderRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 15,
+    marginBottom: 6,
   },
 
   sectionHeaderContent: {
@@ -278,73 +352,102 @@ const styles = StyleSheet.create({
   },
 
   sectionLabel: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '900',
-    letterSpacing: 1.15,
-    color: '#718078',
-    marginBottom: 5,
+    letterSpacing: 1.1,
+    color: '#16733F',
+    marginBottom: 3,
   },
 
   sectionDescription: {
-    fontSize: 10,
-    color: '#9AA49F',
-    lineHeight: 15,
+    fontSize: 12,
+    color: '#65736C',
+    lineHeight: 17,
   },
 
   stepBadge: {
-    width: 30,
-    height: 30,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
     borderRadius: 10,
     backgroundColor: '#EFF8F2',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#D9EDDF',
+    borderColor: '#D4EAD9',
     marginLeft: 8,
   },
 
   stepBadgeText: {
-    fontSize: 9,
-    fontWeight: '900',
-    color: '#1B7A43',
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#16733F',
   },
 
   fieldLabel: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#65716B',
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#2B3830',
     marginBottom: 7,
   },
 
   twoColumns: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 12,
   },
 
   halfColumn: {
     flex: 1,
-    minWidth: 0,
   },
 
+  // -------------------------------------------------------------
+  // Form Inputs
+  // -------------------------------------------------------------
   input: {
-    minHeight: 51,
-    backgroundColor: '#F7FAF8',
-    borderWidth: 1,
-    borderColor: '#E0E8E3',
+    minHeight: 50,
+    backgroundColor: '#F8FAF9',
+    borderWidth: 1.5,
+    borderColor: '#DCE5DF',
     borderRadius: 14,
     paddingHorizontal: 14,
     color: '#111815',
-    fontSize: 13,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  rateInputContainer: {
+    minHeight: 50,
+    backgroundColor: '#F8FAF9',
+    borderWidth: 1.5,
+    borderColor: '#DCE5DF',
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  currencyPrefix: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#16733F',
+    marginRight: 6,
+  },
+
+  rateTextInput: {
+    flex: 1,
+    height: 50,
+    padding: 0,
+    color: '#111815',
+    fontSize: 14,
     fontWeight: '600',
   },
 
   dateInput: {
-    minHeight: 51,
-    backgroundColor: '#F7FAF8',
-    borderWidth: 1,
-    borderColor: '#E0E8E3',
+    minHeight: 50,
+    backgroundColor: '#F8FAF9',
+    borderWidth: 1.5,
+    borderColor: '#DCE5DF',
     borderRadius: 14,
-    paddingHorizontal: 13,
+    paddingHorizontal: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -352,100 +455,111 @@ const styles = StyleSheet.create({
 
   dateText: {
     flex: 1,
-    fontSize: 12,
-    color: '#16201B',
+    fontSize: 14,
     fontWeight: '700',
+    color: '#16201B',
   },
 
   placeholderText: {
     flex: 1,
-    fontSize: 12,
-    color: '#98A39D',
+    fontSize: 13,
+    color: '#95A19B',
     fontWeight: '500',
   },
 
   disabledInput: {
-    opacity: 0.42,
+    opacity: 0.45,
+    backgroundColor: '#F2F6F3',
   },
 
   stayInfoBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
+    marginTop: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     borderRadius: 12,
     backgroundColor: '#EFF8F2',
     borderWidth: 1,
-    borderColor: '#DCEFE3',
+    borderColor: '#D4EAD9',
   },
 
   stayInfoIcon: {
-    marginRight: 7,
+    marginRight: 8,
   },
 
   stayInfoText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#267347',
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#16733F',
   },
 
+  // -------------------------------------------------------------
+  // Counters (Guests & Rooms)
+  // -------------------------------------------------------------
   counterRow: {
-    minHeight: 63,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingVertical: 10,
   },
 
-  counterInfo: {
+  counterLabelWrap: {
     flex: 1,
   },
 
   counterLabel: {
     fontSize: 14,
-    fontWeight: '800',
-    color: '#17201B',
+    fontWeight: '700',
+    color: '#16221B',
   },
 
-  counterHint: {
-    fontSize: 9,
-    color: '#99A39E',
-    marginTop: 3,
+  counterSubLabel: {
+    fontSize: 11,
+    color: '#77867E',
+    marginTop: 2,
   },
 
   counterControls: {
     flexDirection: 'row',
     alignItems: 'center',
     marginLeft: 12,
+    gap: 4,
   },
 
   counterButton: {
-    width: 37,
-    height: 37,
+    width: 40,
+    height: 40,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#DCE5DF',
+    borderWidth: 1.5,
+    borderColor: '#D4E0D8',
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#10291D',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
     elevation: 1,
   },
 
   counterButtonDisabled: {
-    opacity: 0.28,
+    opacity: 0.3,
+    borderColor: '#E2EBE5',
+    backgroundColor: '#F5F8F6',
   },
 
   counterButtonText: {
-    fontSize: 21,
+    fontSize: 20,
     color: '#16733F',
     lineHeight: 22,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 
   counterValue: {
-    width: 34,
+    minWidth: 36,
     textAlign: 'center',
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '900',
     color: '#142019',
   },
@@ -453,70 +567,75 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: '#EEF2EF',
-    marginVertical: 2,
+    marginVertical: 4,
   },
 
   guestTotalBar: {
-    marginTop: 12,
-    paddingHorizontal: 13,
-    paddingVertical: 11,
-    borderRadius: 12,
-    backgroundColor: '#F8FAF9',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+    borderRadius: 12,
+    backgroundColor: '#F4F8F5',
+    borderWidth: 1,
+    borderColor: '#DFEAE2',
   },
 
   guestTotalLabel: {
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: '700',
-    color: '#7A8680',
+    color: '#4B5C52',
   },
 
   guestTotalValue: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '900',
-    color: '#1B7A43',
+    color: '#16733F',
+  },
+
+  // -------------------------------------------------------------
+  // Rooms Tab & Room Items
+  // -------------------------------------------------------------
+  roomsContainer: {
+    flex: 1,
+  },
+
+  roomsListContent: {
+    paddingBottom: 20,
   },
 
   addRoomButton: {
-    minHeight: 40,
-    paddingHorizontal: 14,
-    borderRadius: 12,
-    backgroundColor: '#16733F',
-    borderWidth: 1,
-    borderColor: '#16733F',
-    alignItems: 'center',
-    justifyContent: 'center',
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#16733F',
+    borderRadius: 13,
+    paddingHorizontal: 14,
+    height: 40,
     shadowColor: '#16733F',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
     elevation: 3,
   },
 
   addRoomText: {
-    fontSize: 10,
-    fontWeight: '900',
+    fontSize: 12,
+    fontWeight: '800',
     color: '#FFFFFF',
   },
 
   roomBox: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#DDE8E1',
+    borderColor: '#DCE5DF',
     borderRadius: 18,
     padding: 16,
-    marginBottom: 11,
+    marginBottom: 12,
     shadowColor: '#10291D',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.04,
     shadowRadius: 10,
     elevation: 2,
@@ -525,13 +644,13 @@ const styles = StyleSheet.create({
   roomHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 14,
   },
 
   roomNumber: {
-    width: 39,
-    height: 39,
-    borderRadius: 13,
+    width: 38,
+    height: 38,
+    borderRadius: 12,
     backgroundColor: '#173C29',
     alignItems: 'center',
     justifyContent: 'center',
@@ -539,7 +658,7 @@ const styles = StyleSheet.create({
   },
 
   roomNumberText: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '900',
     color: '#FFFFFF',
   },
@@ -549,272 +668,304 @@ const styles = StyleSheet.create({
   },
 
   roomTitle: {
-    fontSize: 13,
-    fontWeight: '900',
-    color: '#17201B',
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#15201A',
   },
 
   roomSubtitle: {
-    fontSize: 9,
-    color: '#929C96',
-    marginTop: 2,
+    fontSize: 11,
+    color: '#7A8880',
+    marginTop: 1,
   },
 
   deleteButton: {
-    minWidth: 72,
     height: 36,
     paddingHorizontal: 10,
-    borderRadius: 11,
-    backgroundColor: '#FFF4F4',
+    borderRadius: 10,
+    backgroundColor: '#FFF2F2',
     borderWidth: 1,
-    borderColor: '#F3D4D4',
+    borderColor: '#FED7D7',
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    gap: 5,
+    gap: 4,
   },
 
   deleteText: {
-    fontSize: 10,
-    fontWeight: '900',
-    color: '#D64545',
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#DC2626',
+  },
+
+  // Quick Room Suggestions
+  quickRoomChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 8,
+  },
+
+  quickRoomChip: {
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 8,
+    backgroundColor: '#EFF6F1',
+    borderWidth: 1,
+    borderColor: '#D4EAD9',
+  },
+
+  quickRoomChipActive: {
+    backgroundColor: '#16733F',
+    borderColor: '#16733F',
+  },
+
+  quickRoomChipText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#16733F',
+  },
+
+  quickRoomChipTextActive: {
+    color: '#FFFFFF',
   },
 
   roomGuestHeader: {
-    marginTop: 16,
-    marginBottom: 9,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginTop: 14,
+    marginBottom: 8,
   },
 
   roomGuestHeaderText: {
     flex: 1,
-    paddingRight: 10,
   },
 
   roomGuestHint: {
-    fontSize: 9,
-    color: '#8E9993',
-    marginTop: -3,
+    fontSize: 11,
+    color: '#76857D',
+    marginTop: 1,
   },
 
   roomGuestBadge: {
-    minWidth: 42,
-    height: 32,
-    paddingHorizontal: 8,
-    borderRadius: 10,
-    backgroundColor: '#EFF8F2',
-    borderWidth: 1,
-    borderColor: '#D6EBDD',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: 4,
+    backgroundColor: '#EFF8F2',
+    borderWidth: 1,
+    borderColor: '#D4EAD9',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
 
   roomGuestBadgeText: {
-    fontSize: 10,
-    fontWeight: '900',
+    fontSize: 12,
+    fontWeight: '800',
     color: '#16733F',
   },
 
   roomGuestRow: {
     flexDirection: 'row',
-    gap: 9,
-    marginBottom: 2,
+    gap: 10,
+    marginBottom: 12,
   },
 
   roomGuestCounter: {
     flex: 1,
-    minWidth: 0,
-    minHeight: 58,
-    paddingHorizontal: 9,
-    paddingVertical: 8,
-    borderRadius: 13,
-    backgroundColor: '#F7FAF8',
+    backgroundColor: '#F8FAF9',
     borderWidth: 1,
-    borderColor: '#E0E8E3',
+    borderColor: '#E2EBE5',
+    borderRadius: 14,
+    padding: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
 
   roomGuestLabelWrap: {
-    flex: 1,
-    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
   },
 
   roomGuestLabel: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#536159',
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#28362E',
   },
 
   rateAppliesLabel: {
-    marginTop: 15,
+    marginTop: 4,
   },
 
   toggleRow: {
     flexDirection: 'row',
     gap: 8,
-    width: '100%',
   },
 
   toggleButton: {
     flex: 1,
-    minWidth: 0,
-    height: 44,
-    paddingHorizontal: 8,
+    height: 42,
     borderRadius: 12,
+    backgroundColor: '#F4F7F5',
     borderWidth: 1,
     borderColor: '#DCE5DF',
-    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   toggleActive: {
-    backgroundColor: '#E9F6EE',
-    borderColor: '#1B7A43',
+    backgroundColor: '#16733F',
+    borderColor: '#16733F',
+    shadowColor: '#16733F',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3,
   },
 
   toggleText: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '700',
-    color: '#66716C',
-    textAlign: 'center',
+    color: '#55655D',
   },
 
   toggleActiveText: {
-    color: '#16733F',
-    fontWeight: '900',
+    color: '#FFFFFF',
+    fontWeight: '800',
   },
 
   roomTotalPreview: {
     marginHorizontal: 16,
-    marginBottom: 14,
+    marginBottom: 12,
     paddingHorizontal: 18,
-    paddingVertical: 15,
-    borderRadius: 18,
+    paddingVertical: 14,
+    borderRadius: 16,
     backgroundColor: '#10291D',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    shadowColor: '#0A1B13',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
 
   previewCaption: {
-    fontSize: 8,
-    fontWeight: '900',
-    letterSpacing: 1,
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.9,
     color: '#8FA99A',
-    marginBottom: 4,
   },
 
   previewAmount: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '900',
     color: '#FFFFFF',
+    marginTop: 2,
   },
 
   previewNights: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#A5C4B1',
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#A3C8B3',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
   },
 
+  loadingMoreRoomsContainer: {
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+
+  loadingMoreRoomsText: {
+    color: '#16733F',
+    fontWeight: '700',
+    fontSize: 13,
+  },
+
+  stickyRoomsFooter: {
+    backgroundColor: '#F2F7F4',
+    borderTopWidth: 1,
+    borderTopColor: '#E2EBE5',
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+
+  // -------------------------------------------------------------
+  // Pricing Modifiers Tab
+  // -------------------------------------------------------------
   smallToggleRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    gap: 6,
     marginBottom: 8,
   },
 
   smallToggle: {
-    minWidth: 52,
-    height: 36,
-    paddingHorizontal: 13,
-    borderRadius: 10,
+    flex: 1,
+    height: 34,
+    borderRadius: 9,
+    backgroundColor: '#F4F7F5',
     borderWidth: 1,
     borderColor: '#DCE5DF',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    marginRight: 7,
   },
 
   taxLabelSpace: {
-    height: 36,
+    height: 34,
     justifyContent: 'center',
     marginBottom: 8,
   },
 
   percentBadgeText: {
-    fontSize: 8,
-    fontWeight: '900',
-    color: '#1B7A43',
-    letterSpacing: 1,
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#718078',
   },
 
   pricingPreviewHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 18,
+    alignItems: 'center',
+    marginBottom: 14,
   },
 
   pricingPreviewAmount: {
     fontSize: 24,
     fontWeight: '900',
-    color: '#10291D',
+    color: '#16733F',
+    marginTop: 2,
   },
 
   pricingStatus: {
     paddingHorizontal: 10,
-    paddingVertical: 7,
-    borderRadius: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
     backgroundColor: '#EFF8F2',
     borderWidth: 1,
-    borderColor: '#DCEFE3',
+    borderColor: '#D4EAD9',
   },
 
   pricingStatusText: {
-    fontSize: 8,
+    fontSize: 11,
     fontWeight: '900',
-    color: '#1B7A43',
-    letterSpacing: 0.7,
+    color: '#16733F',
+    letterSpacing: 0.5,
   },
 
-
-  todayButton: {
-  alignSelf: 'center',
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 6,
-  paddingHorizontal: 16,
-  paddingVertical: 8,
-  marginTop: 4,
-  marginBottom: 10,
-  borderRadius: 20,
-  backgroundColor: '#E8F4EC',
-  borderWidth: 1,
-  borderColor: '#C8E2D1',
-},
-
-todayButtonText: {
-  fontSize: 13,
-  fontWeight: '800',
-  color: '#1B7A43',
-},
   selectBox: {
-    minHeight: 51,
-    backgroundColor: '#F7FAF8',
-    borderWidth: 1,
-    borderColor: '#E0E8E3',
+    minHeight: 50,
     borderRadius: 14,
+    backgroundColor: '#F8FAF9',
+    borderWidth: 1.5,
+    borderColor: '#DCE5DF',
     paddingHorizontal: 14,
     flexDirection: 'row',
     alignItems: 'center',
@@ -822,46 +973,49 @@ todayButtonText: {
   },
 
   selectText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: '#17201B',
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#15201A',
   },
 
   currencyIcon: {
-    width: 31,
-    height: 31,
+    width: 32,
+    height: 32,
     borderRadius: 10,
     backgroundColor: '#EFF8F2',
+    borderWidth: 1,
+    borderColor: '#D4EAD9',
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   currencyIconText: {
-    color: '#1B7A43',
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '900',
+    color: '#16733F',
   },
 
   exchangeBox: {
-    marginTop: 13,
-    paddingHorizontal: 13,
-    paddingVertical: 12,
+    marginTop: 14,
+    padding: 14,
     borderRadius: 14,
     backgroundColor: '#EFF8F2',
     borderWidth: 1,
-    borderColor: '#DCEFE3',
+    borderColor: '#D4EAD9',
     flexDirection: 'row',
     alignItems: 'center',
   },
 
   exchangeIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 11,
+    width: 38,
+    height: 38,
+    borderRadius: 12,
     backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D4EAD9',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 10,
+    marginRight: 12,
   },
 
   exchangeContent: {
@@ -869,34 +1023,37 @@ todayButtonText: {
   },
 
   exchangeCaption: {
-    fontSize: 7,
-    fontWeight: '900',
-    letterSpacing: 1,
-    color: '#7B9485',
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    color: '#16733F',
     marginBottom: 2,
   },
 
   exchangeText: {
-    fontSize: 11,
+    fontSize: 14,
     fontWeight: '800',
-    color: '#17201B',
+    color: '#132119',
   },
 
+  // -------------------------------------------------------------
+  // Quote Summary Tab
+  // -------------------------------------------------------------
   summaryHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 18,
   },
 
   summaryIcon: {
-    width: 46,
-    height: 46,
-    borderRadius: 15,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     backgroundColor: '#173C29',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 11,
-    elevation: 4,
+    marginRight: 12,
+    elevation: 3,
   },
 
   summaryHeaderText: {
@@ -904,46 +1061,160 @@ todayButtonText: {
   },
 
   summaryTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '900',
     color: '#17201B',
   },
 
   summarySubtitle: {
-    fontSize: 10,
-    color: '#89938E',
-    marginTop: 3,
+    fontSize: 12,
+    color: '#78867E',
+    marginTop: 2,
+    fontWeight: '500',
   },
 
   summaryCheck: {
-    width: 29,
-    height: 29,
+    width: 32,
+    height: 32,
     borderRadius: 10,
-    backgroundColor: '#EAF6EE',
+    backgroundColor: '#EFF8F2',
+    borderWidth: 1,
+    borderColor: '#D4EAD9',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  quoteRoomsSection: {
+    marginTop: 14,
+    marginBottom: 6,
+  },
+
+  quoteRoomsSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+
+  quoteRoomsSectionTitle: {
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 1.1,
+    color: '#16733F',
+  },
+
+  quoteRoomCard: {
+    backgroundColor: '#F8FAF9',
+    borderWidth: 1,
+    borderColor: '#E2EBE5',
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 10,
+  },
+
+  quoteRoomTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+
+  quoteRoomTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+
+  quoteRoomBadge: {
+    backgroundColor: '#16733F',
+    borderRadius: 7,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    marginRight: 8,
+  },
+
+  quoteRoomBadgeText: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: '#FFFFFF',
+  },
+
+  quoteRoomName: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#18211C',
+    flex: 1,
+  },
+
+  quoteRoomSubtotal: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#16733F',
+  },
+
+  quoteRoomDetailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+
+  quoteRoomGuestsWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+
+  quoteGuestPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EFF8F2',
+    borderWidth: 1,
+    borderColor: '#D4EAD9',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    gap: 4,
+  },
+
+  quoteGuestPillText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#16733F',
+  },
+
+  quoteRoomPricingCalc: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#77867E',
+  },
+
+  quoteRoomDivider: {
+    height: 1,
+    backgroundColor: '#E7EFEA',
+    marginVertical: 14,
   },
 
   breakdownHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 11,
+    marginBottom: 12,
   },
 
   nightBadge: {
     backgroundColor: '#EFF8F2',
-    paddingHorizontal: 9,
-    paddingVertical: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#DCEFE3',
+    borderColor: '#D4EAD9',
   },
 
   nightBadgeText: {
-    fontSize: 8,
+    fontSize: 11,
     fontWeight: '900',
-    color: '#1B7A43',
+    color: '#16733F',
     letterSpacing: 0.5,
   },
 
@@ -951,285 +1222,286 @@ todayButtonText: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    paddingVertical: 6,
   },
 
   summaryRowLabel: {
-    fontSize: 11,
-    color: '#737E78',
+    fontSize: 13,
+    color: '#65736C',
     fontWeight: '500',
   },
 
   summaryRowValue: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '800',
     color: '#18211C',
   },
 
+  // Hero Total Box
   totalBox: {
-    marginTop: 15,
-    paddingHorizontal: 17,
-    paddingVertical: 17,
+    marginTop: 16,
+    padding: 18,
     borderRadius: 18,
     backgroundColor: '#10291D',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    shadowColor: '#071A11',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
     elevation: 6,
   },
 
   totalLabel: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '900',
     color: '#FFFFFF',
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
 
   totalCaption: {
-    fontSize: 8,
+    fontSize: 11,
     color: '#8FA99A',
-    marginTop: 4,
+    marginTop: 3,
   },
 
   totalRight: {
     alignItems: 'flex-end',
-    maxWidth: '60%',
+    maxWidth: '65%',
   },
 
   totalValue: {
-    fontSize: 20,
+    fontSize: 26,
     fontWeight: '900',
     color: '#FFFFFF',
     textAlign: 'right',
   },
 
   convertedValue: {
-    fontSize: 10,
+    fontSize: 13,
     color: '#9FC1AD',
     textAlign: 'right',
-    marginTop: 4,
-    fontWeight: '600',
+    marginTop: 3,
+    fontWeight: '700',
   },
 
+  // Tone & Live Message
   toneRow: {
     flexDirection: 'row',
     gap: 8,
-    marginTop: 13,
-    marginBottom: 13,
+    marginTop: 12,
+    marginBottom: 14,
   },
 
   toneButton: {
     flex: 1,
-    minWidth: 0,
     height: 42,
-    paddingHorizontal: 6,
-    borderRadius: 11,
+    borderRadius: 12,
+    backgroundColor: '#F3F7F5',
     borderWidth: 1,
-    borderColor: '#DDE5E0',
+    borderColor: '#DCE5DF',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F7FAF8',
   },
 
   toneActive: {
-    backgroundColor: '#1B7A43',
-    borderColor: '#1B7A43',
-    elevation: 3,
+    backgroundColor: '#16733F',
+    borderColor: '#16733F',
   },
 
   toneText: {
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: '700',
-    color: '#737D78',
-    textAlign: 'center',
+    color: '#55655D',
   },
 
   toneActiveText: {
     color: '#FFFFFF',
-    fontWeight: '900',
+    fontWeight: '800',
   },
 
   messageBox: {
-    backgroundColor: '#F7FAF8',
-    padding: 14,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: '#E0E8E3',
-    marginBottom: 13,
-    minHeight: 125,
+    backgroundColor: '#F8FAF9',
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: '#DCE5DF',
+    marginBottom: 14,
+    minHeight: 120,
   },
 
   messageHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 9,
+    marginBottom: 10,
   },
 
   messageHeaderText: {
-    fontSize: 8,
-    fontWeight: '900',
-    color: '#8A958F',
-    letterSpacing: 1,
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#718078',
+    letterSpacing: 0.8,
   },
 
   messageLiveDot: {
-    width: 5,
-    height: 5,
+    width: 6,
+    height: 6,
     borderRadius: 3,
-    backgroundColor: '#1B9A55',
+    backgroundColor: '#16A34A',
     marginLeft: 6,
   },
 
   messageText: {
-    fontSize: 12,
-    color: '#35413A',
-    lineHeight: 19,
+    fontSize: 13,
+    color: '#28362F',
+    lineHeight: 20,
     fontWeight: '500',
   },
 
   messagePlaceholder: {
-    color: '#99A39E',
+    color: '#929E97',
     fontStyle: 'italic',
   },
 
   actionRow: {
     flexDirection: 'row',
-    gap: 7,
+    gap: 8,
     width: '100%',
   },
 
   copyButton: {
     flex: 1,
-    minWidth: 0,
     height: 48,
     backgroundColor: '#FFFFFF',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#DCE5DF',
-    borderRadius: 13,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    gap: 6,
   },
 
   copyButtonText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '800',
     color: '#364039',
-    marginLeft: 6,
   },
 
   whatsappButton: {
     flex: 1.25,
-    minWidth: 0,
     height: 48,
     backgroundColor: '#25D366',
-    borderRadius: 13,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    gap: 6,
+    shadowColor: '#25D366',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
     elevation: 3,
   },
 
   whatsappButtonText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '800',
     color: '#FFFFFF',
-    marginLeft: 6,
   },
 
   emailButton: {
     flex: 1,
-    minWidth: 0,
     height: 48,
-    backgroundColor: '#1B7A43',
-    borderRadius: 13,
+    backgroundColor: '#16733F',
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    gap: 6,
+    shadowColor: '#16733F',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
     elevation: 3,
   },
 
   emailButtonText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '800',
     color: '#FFFFFF',
-    marginLeft: 6,
   },
 
-navigationButtons: {
-  marginHorizontal: 16,
-  marginTop: 2,
-  marginBottom: 2,
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 8,
-},
+  // -------------------------------------------------------------
+  // Navigation Buttons (Next / Back)
+  // -------------------------------------------------------------
+  navigationButtons: {
+    marginHorizontal: 16,
+    marginTop: 4,
+    marginBottom: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
 
   backButton: {
-    height: 54,
-    paddingHorizontal: 16,
-    borderRadius: 17,
+    height: 52,
+    paddingHorizontal: 18,
+    borderRadius: 16,
     backgroundColor: '#FFFFFF',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#DCE5DF',
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    gap: 6,
     shadowColor: '#10291D',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 7,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
     elevation: 2,
   },
 
   backOnlyButton: {
     flex: 1,
-    height: 50,
+    height: 52,
     paddingHorizontal: 18,
-    borderRadius: 17,
+    borderRadius: 16,
     backgroundColor: '#FFFFFF',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#DCE5DF',
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    gap: 6,
     shadowColor: '#10291D',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 7,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
     elevation: 2,
   },
 
   backButtonText: {
-    color: '#364039',
-    fontSize: 11,
-    fontWeight: '900',
-    marginLeft: 5,
+    color: '#2B3830',
+    fontSize: 14,
+    fontWeight: '800',
   },
 
   nextButton: {
     flex: 1,
-    minHeight: 50,
-    borderRadius: 17,
+    height: 52,
+    borderRadius: 16,
     backgroundColor: '#16733F',
-    paddingHorizontal: 18,
+    paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     shadowColor: '#16733F',
-    shadowOffset: {
-      width: 0,
-      height: 7,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.22,
+    shadowRadius: 8,
+    elevation: 4,
   },
 
   nextButtonWithBack: {
@@ -1238,82 +1510,82 @@ navigationButtons: {
 
   nextButtonText: {
     color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '900',
+    fontSize: 14,
+    fontWeight: '800',
   },
 
+  // -------------------------------------------------------------
+  // Calendar Modal
+  // -------------------------------------------------------------
   calendarOverlay: {
     flex: 1,
-    backgroundColor:
-      'rgba(7, 23, 15, 0.48)',
+    backgroundColor: 'rgba(10, 25, 17, 0.45)',
     justifyContent: 'flex-end',
   },
 
   calendarSheet: {
     backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    paddingHorizontal: 18,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 28,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 20,
     shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: -5,
-    },
+    shadowOffset: { width: 0, height: -6 },
     shadowOpacity: 0.12,
-    shadowRadius: 20,
-    elevation: 15,
+    shadowRadius: 16,
+    elevation: 10,
   },
 
   calendarTop: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 19,
+    alignItems: 'flex-start',
+    marginBottom: 16,
   },
 
   calendarEyebrow: {
-    fontSize: 8,
+    fontSize: 11,
     fontWeight: '900',
-    letterSpacing: 1.2,
-    color: '#7B8A82',
-    marginBottom: 4,
+    letterSpacing: 1.1,
+    color: '#16733F',
   },
 
   calendarSelectedText: {
-    fontSize: 20,
+    fontSize: 17,
     fontWeight: '900',
-    color: '#10291D',
+    color: '#111815',
+    marginTop: 3,
   },
 
   calendarClose: {
-    width: 38,
-    height: 38,
-    borderRadius: 13,
-    backgroundColor: '#F2F7F4',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F3F6F4',
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   calendarCloseText: {
-    fontSize: 25,
-    color: '#59675F',
-    lineHeight: 27,
+    fontSize: 22,
+    color: '#55655D',
+    lineHeight: 24,
+    fontWeight: '600',
   },
 
   monthNavigation: {
-    height: 48,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 7,
+    marginBottom: 14,
+    paddingHorizontal: 4,
   },
 
   monthTitle: {
-    fontSize: 15,
-    fontWeight: '900',
-    color: '#17201B',
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#121F17',
   },
 
   monthButton: {
@@ -1321,64 +1593,89 @@ navigationButtons: {
     height: 40,
     borderRadius: 12,
     backgroundColor: '#EFF8F2',
+    borderWidth: 1,
+    borderColor: '#D4EAD9',
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   monthButtonDisabled: {
-    opacity: 0.3,
+    opacity: 0.35,
+    backgroundColor: '#F5F8F6',
+    borderColor: '#E2EBE5',
+  },
+
+  todayButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 10,
+    backgroundColor: '#EFF8F2',
+    borderWidth: 1,
+    borderColor: '#D4EAD9',
+  },
+
+  todayButtonText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#16733F',
   },
 
   weekRow: {
     flexDirection: 'row',
-    marginBottom: 6,
+    justifyContent: 'space-around',
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEF3F0',
+    paddingBottom: 8,
   },
 
   weekText: {
-    width: '14.2857%',
+    width: 38,
     textAlign: 'center',
-    fontSize: 8,
-    fontWeight: '900',
-    color: '#98A39D',
-    letterSpacing: 0.4,
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#7E8E84',
+    letterSpacing: 0.5,
   },
 
   calendarGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'space-around',
   },
 
   calendarDay: {
-    width: '14.2857%',
-    height: 49,
+    width: '14.28%',
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
+    marginVertical: 2,
   },
 
   calendarDateButton: {
-    width: 39,
-    height: 39,
-    borderRadius: 13,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   calendarDateText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#26332C',
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1C2921',
   },
 
   calendarDateSelected: {
     backgroundColor: '#16733F',
     shadowColor: '#16733F',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 7,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
     elevation: 3,
   },
 
@@ -1388,84 +1685,84 @@ navigationButtons: {
   },
 
   calendarDateDisabled: {
-    opacity: 0.27,
+    opacity: 0.28,
   },
 
   calendarDateTextDisabled: {
-    color: '#89938D',
+    color: '#A0ACA5',
   },
 
   calendarToday: {
     borderWidth: 1.5,
-    borderColor: '#1B7A43',
+    borderColor: '#16733F',
   },
 
   calendarRange: {
-    backgroundColor: '#E9F6EE',
-    borderRadius: 0,
+    backgroundColor: '#EFF8F2',
+    borderRadius: 6,
   },
 
   todayDot: {
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#1B7A43',
+    backgroundColor: '#16733F',
     position: 'absolute',
-    bottom: 2,
+    bottom: 3,
   },
 
   rangeMarker: {
     position: 'absolute',
-    bottom: 3,
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#FFFFFF',
+    bottom: 2,
+    width: 14,
+    height: 2,
+    borderRadius: 1,
+    backgroundColor: '#16733F',
   },
 
   calendarLegend: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
     gap: 20,
-    marginTop: 13,
-    paddingTop: 13,
+    marginTop: 14,
+    paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#EEF2EF',
+    borderTopColor: '#EEF3F0',
   },
 
   legendItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 6,
   },
 
   legendDotSelected: {
-    width: 9,
-    height: 9,
-    borderRadius: 4.5,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: '#16733F',
-    marginRight: 6,
   },
 
   legendDotToday: {
-    width: 9,
-    height: 9,
-    borderRadius: 4.5,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     borderWidth: 1.5,
-    borderColor: '#1B7A43',
-    marginRight: 6,
+    borderColor: '#16733F',
   },
 
   legendText: {
-    fontSize: 9,
-    color: '#7F8B85',
+    fontSize: 12,
+    color: '#65736C',
     fontWeight: '600',
   },
 
+  // -------------------------------------------------------------
+  // Currency Modal
+  // -------------------------------------------------------------
   modalOverlay: {
     flex: 1,
-    backgroundColor:
-      'rgba(10, 25, 18, 0.45)',
+    backgroundColor: 'rgba(10, 25, 17, 0.45)',
     justifyContent: 'flex-end',
   },
 
@@ -1473,10 +1770,15 @@ navigationButtons: {
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    paddingHorizontal: 18,
-    paddingTop: 18,
-    paddingBottom: 28,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 24,
     maxHeight: '75%',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: -6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 10,
   },
 
   modalHeader: {
@@ -1493,57 +1795,60 @@ navigationButtons: {
   },
 
   modalSubtitle: {
-    fontSize: 10,
-    color: '#8B9690',
-    marginTop: 4,
+    fontSize: 12,
+    color: '#76857D',
+    marginTop: 2,
   },
 
   modalClose: {
     width: 36,
     height: 36,
-    borderRadius: 12,
-    backgroundColor: '#F2F7F4',
+    borderRadius: 18,
+    backgroundColor: '#F3F6F4',
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   modalCloseText: {
-    fontSize: 24,
-    color: '#526059',
-    lineHeight: 26,
+    fontSize: 22,
+    color: '#55655D',
+    lineHeight: 24,
+    fontWeight: '600',
   },
 
   currencyOption: {
-    minHeight: 65,
-    borderRadius: 15,
-    paddingHorizontal: 11,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#E4EBE6',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    marginBottom: 8,
+    backgroundColor: '#F8FAF9',
+    borderWidth: 1,
+    borderColor: '#E2EBE5',
   },
 
   currencyOptionActive: {
     backgroundColor: '#EFF8F2',
-    borderColor: '#BFDCC9',
+    borderColor: '#C8E8D3',
   },
 
   currencySymbolBox: {
-    width: 40,
-    height: 40,
+    width: 42,
+    height: 42,
     borderRadius: 12,
-    backgroundColor: '#F2F7F4',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#DCE5DF',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 11,
+    marginRight: 12,
   },
 
   currencySymbol: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '900',
-    color: '#1B7A43',
+    color: '#16733F',
   },
 
   currencyOptionContent: {
@@ -1551,46 +1856,48 @@ navigationButtons: {
   },
 
   currencyCode: {
-    fontSize: 13,
-    fontWeight: '900',
-    color: '#18211C',
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#15201A',
   },
 
   currencyName: {
-    fontSize: 9,
-    color: '#8C9791',
-    marginTop: 3,
+    fontSize: 12,
+    color: '#718078',
+    marginTop: 2,
   },
 
   selectedCheck: {
-    width: 27,
-    height: 27,
-    borderRadius: 9,
-    backgroundColor: '#1B7A43',
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#16733F',
     alignItems: 'center',
     justifyContent: 'center',
   },
 
+  // -------------------------------------------------------------
+  // Miscellaneous / Status
+  // -------------------------------------------------------------
   finalSuccessCard: {
-    marginHorizontal: 16,
-    marginBottom: 14,
-    padding: 15,
-    borderRadius: 17,
     backgroundColor: '#EFF8F2',
     borderWidth: 1,
-    borderColor: '#DCEFE3',
+    borderColor: '#D4EAD9',
+    borderRadius: 16,
+    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 14,
   },
 
   finalSuccessIcon: {
     width: 40,
     height: 40,
-    borderRadius: 13,
+    borderRadius: 12,
     backgroundColor: '#16733F',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 11,
+    marginRight: 12,
   },
 
   finalSuccessContent: {
@@ -1598,180 +1905,45 @@ navigationButtons: {
   },
 
   finalSuccessTitle: {
-    fontSize: 12,
-    fontWeight: '900',
-    color: '#173C29',
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#16733F',
   },
 
   finalSuccessText: {
-    fontSize: 9,
-    lineHeight: 14,
-    color: '#6F8277',
-    marginTop: 3,
+    fontSize: 12,
+    color: '#4B5C52',
+    marginTop: 2,
   },
 
   footer: {
+    paddingVertical: 18,
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 8,
   },
 
   footerLine: {
-    width: 35,
+    width: 36,
     height: 3,
     borderRadius: 2,
-    backgroundColor: '#CFE1D6',
-    marginBottom: 10,
+    backgroundColor: '#DDE6E0',
+    marginBottom: 8,
   },
 
   footerText: {
-    fontSize: 8,
-    fontWeight: '900',
-    color: '#8C9892',
-    letterSpacing: 0.9,
-    textAlign: 'center',
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#76857D',
   },
 
   footerSubtext: {
-    fontSize: 9,
-    color: '#A6AEA9',
-    marginTop: 4,
+    fontSize: 11,
+    color: '#9AA69F',
+    marginTop: 2,
   },
 
   bottomSpace: {
-    height: 35,
+    height: 30,
   },
-
-roomsContainer: {
-  flex: 1,
-},
-
-roomsListContent: {
-  paddingBottom: 6,
-},
-
-stickyRoomsFooter: {
-  backgroundColor: '#F7FAF8',
-  borderTopWidth: 1,
-  borderTopColor: '#E1EAE4',
-  paddingHorizontal: 16,
-  paddingTop: 8,
-},
-
-// Room & Guest Allocation Table / Breakdown in Quote Summary
-quoteRoomsSection: {
-  marginTop: 18,
-  marginBottom: 8,
-},
-
-quoteRoomsSectionHeader: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  marginBottom: 10,
-},
-
-quoteRoomsSectionTitle: {
-  fontSize: 10,
-  fontWeight: '900',
-  letterSpacing: 1.15,
-  color: '#718078',
-},
-
-quoteRoomCard: {
-  backgroundColor: '#F8FAF9',
-  borderWidth: 1,
-  borderColor: '#E2EBE5',
-  borderRadius: 14,
-  padding: 12,
-  marginBottom: 10,
-},
-
-quoteRoomTopRow: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  marginBottom: 6,
-},
-
-quoteRoomTitleRow: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  flex: 1,
-},
-
-quoteRoomBadge: {
-  backgroundColor: '#16733F',
-  borderRadius: 7,
-  paddingHorizontal: 6,
-  paddingVertical: 3,
-  marginRight: 8,
-},
-
-quoteRoomBadgeText: {
-  fontSize: 9,
-  fontWeight: '900',
-  color: '#FFFFFF',
-},
-
-quoteRoomName: {
-  fontSize: 12,
-  fontWeight: '800',
-  color: '#18211C',
-  flex: 1,
-},
-
-quoteRoomSubtotal: {
-  fontSize: 13,
-  fontWeight: '900',
-  color: '#16733F',
-},
-
-quoteRoomDetailRow: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  marginTop: 4,
-},
-
-quoteRoomGuestsWrap: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 6,
-},
-
-quoteGuestPill: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  backgroundColor: '#EFF8F2',
-  borderWidth: 1,
-  borderColor: '#D4EAD9',
-  borderRadius: 8,
-  paddingHorizontal: 7,
-  paddingVertical: 3,
-  gap: 4,
-},
-
-quoteGuestPillText: {
-  fontSize: 10,
-  fontWeight: '800',
-  color: '#16733F',
-},
-
-quoteRoomPricingCalc: {
-  fontSize: 10,
-  fontWeight: '600',
-  color: '#7E8B84',
-},
-
-quoteRoomDivider: {
-  height: 1,
-  backgroundColor: '#E7EFEA',
-  marginVertical: 14,
-},
 });
 
-
-
-export default styles
-
+export default styles;

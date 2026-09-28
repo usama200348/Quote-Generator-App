@@ -1,12 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { QuoteState, Room } from '../types';
 import { getCurrency } from '../lib/currencies';
 
-
-export function useQuoteState() {
-
-  const initialQuote: QuoteState = {
+const initialQuote: QuoteState = {
   destination: '',
   checkIn: '',
   checkOut: '',
@@ -30,21 +27,17 @@ export function useQuoteState() {
   notes: '',
 };
 
-  const [quote, setQuote] =
-    useState<QuoteState>(initialQuote);
+export function useQuoteState() {
+  const [quote, setQuote] = useState<QuoteState>(initialQuote);
 
-  const updateQuote = (
-    updates: Partial<QuoteState>,
-  ) => {
+  const updateQuote = useCallback((updates: Partial<QuoteState>) => {
     setQuote(current => ({
       ...current,
       ...updates,
     }));
-  };
+  }, []);
 
-  const updateGuests = (
-    updates: Partial<QuoteState['guests']>,
-  ) => {
+  const updateGuests = useCallback((updates: Partial<QuoteState['guests']>) => {
     setQuote(current => ({
       ...current,
       guests: {
@@ -52,9 +45,9 @@ export function useQuoteState() {
         ...updates,
       },
     }));
-  };
+  }, []);
 
-  const addRoom = () => {
+  const addRoom = useCallback(() => {
     const newRoom: Room = {
       id: Date.now().toString(),
       name: 'Standard Room',
@@ -70,12 +63,9 @@ export function useQuoteState() {
         newRoom,
       ],
     }));
-  };
+  }, []);
 
-  const updateRoom = (
-    id: string,
-    updates: Partial<Room>,
-  ) => {
+  const updateRoom = useCallback((id: string, updates: Partial<Room>) => {
     setQuote(current => ({
       ...current,
       rooms: current.rooms.map(room =>
@@ -87,18 +77,16 @@ export function useQuoteState() {
           : room,
       ),
     }));
-  };
+  }, []);
 
-  const removeRoom = (id: string) => {
+  const removeRoom = useCallback((id: string) => {
     setQuote(current => ({
       ...current,
-      rooms: current.rooms.filter(
-        room => room.id !== id,
-      ),
+      rooms: current.rooms.filter(room => room.id !== id),
     }));
-  };
+  }, []);
 
-  const resetQuote = () => {
+  const resetQuote = useCallback(() => {
     setQuote({
       ...initialQuote,
       rooms: [
@@ -108,7 +96,7 @@ export function useQuoteState() {
         },
       ],
     });
-  };
+  }, []);
 
   return useMemo(
     () => ({
@@ -120,6 +108,6 @@ export function useQuoteState() {
       removeRoom,
       resetQuote,
     }),
-    [quote],
+    [quote, updateQuote, updateGuests, addRoom, updateRoom, removeRoom, resetQuote],
   );
 }

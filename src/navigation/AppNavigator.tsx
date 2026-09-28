@@ -3,7 +3,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import useQuoteState from '../screens/QuoteScreen';
+import QuoteScreen from '../screens/QuoteScreen';
 
 export type RootStackParamList = {
   Quote: undefined;
@@ -23,7 +23,7 @@ export default function AppNavigator() {
       >
         <Stack.Screen
           name="Quote"
-          component={useQuoteState}
+          component={QuoteScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>

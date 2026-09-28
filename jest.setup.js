@@ -1,0 +1,6 @@
+/* eslint-env jest */
+jest.mock('@react-native-clipboard/clipboard', () =>
+  require('@react-native-clipboard/clipboard/jest/clipboard-mock'),
+);
+
+jest.mock('react-native-vector-icons/MaterialCommunityIcons', () => 'Icon');
