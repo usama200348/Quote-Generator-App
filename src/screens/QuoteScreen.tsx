@@ -600,35 +600,43 @@ function CalendarModal({
   onClose: () => void;
   onSelect: (date: Date) => void;
 }) {
-  const today = startOfDay(new Date());
-  const checkInDate = parseDate(checkIn);
-  const checkOutDate = parseDate(checkOut);
+  const today = useMemo(() => startOfDay(new Date()), []);
+  const checkInDate = useMemo(() => parseDate(checkIn), [checkIn]);
+  const checkOutDate = useMemo(() => parseDate(checkOut), [checkOut]);
 
-  const minimumDate =
-    field === 'checkOut' && checkInDate ? addDays(checkInDate, 1) : today;
+  const minimumDate = useMemo(() => {
+    return field === 'checkOut' && checkInDate ? addDays(checkInDate, 1) : today;
+  }, [field, checkInDate, today]);
 
-  const selectedDate = field === 'checkIn' ? checkInDate : checkOutDate;
+  const selectedDate = useMemo(() => {
+    return field === 'checkIn' ? checkInDate : checkOutDate;
+  }, [field, checkInDate, checkOutDate]);
 
-  const [visibleMonth, setVisibleMonth] = useState(
-    new Date(today.getFullYear(), today.getMonth(), 1),
-  );
+  const [visibleMonth, setVisibleMonth] = useState(() => {
+    const initialDate = (field === 'checkIn' ? parseDate(checkIn) : parseDate(checkOut)) || startOfDay(new Date());
+    return new Date(initialDate.getFullYear(), initialDate.getMonth(), 1);
+  });
 
   const sheetAnimation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (!visible) return;
 
-    const initialDate = selectedDate || minimumDate;
+    const initialDate =
+      (field === 'checkIn' ? parseDate(checkIn) : parseDate(checkOut)) ||
+      (field === 'checkOut' && parseDate(checkIn) ? addDays(parseDate(checkIn)!, 1) : startOfDay(new Date()));
+
     setVisibleMonth(new Date(initialDate.getFullYear(), initialDate.getMonth(), 1));
 
     sheetAnimation.setValue(0);
     Animated.timing(sheetAnimation, {
       toValue: 1,
-      duration: 300,
+      duration: 280,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     }).start();
-  }, [visible, minimumDate, selectedDate, sheetAnimation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, field]);
 
   const closeCalendar = () => {
     Animated.timing(sheetAnimation, {
@@ -641,12 +649,16 @@ function CalendarModal({
     });
   };
 
-  const monthLabel = visibleMonth.toLocaleDateString('en-US', {
-    month: 'long',
-    year: 'numeric',
-  });
+  const monthLabel = useMemo(
+    () =>
+      visibleMonth.toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric',
+      }),
+    [visibleMonth],
+  );
 
-  const days = getCalendarDays(visibleMonth);
+  const days = useMemo(() => getCalendarDays(visibleMonth), [visibleMonth]);
 
   const goMonth = (amount: number) => {
     setVisibleMonth(
@@ -672,10 +684,13 @@ function CalendarModal({
     onSelect(todayDate);
   };
 
-  const canGoPrevious =
-    visibleMonth.getFullYear() > minimumDate.getFullYear() ||
-    (visibleMonth.getFullYear() === minimumDate.getFullYear() &&
-      visibleMonth.getMonth() > minimumDate.getMonth());
+  const canGoPrevious = useMemo(() => {
+    return (
+      visibleMonth.getFullYear() > minimumDate.getFullYear() ||
+      (visibleMonth.getFullYear() === minimumDate.getFullYear() &&
+        visibleMonth.getMonth() > minimumDate.getMonth())
+    );
+  }, [visibleMonth, minimumDate]);
 
   const sheetTranslateY = sheetAnimation.interpolate({
     inputRange: [0, 1],
@@ -861,6 +876,9 @@ export default function QuoteScreen() {
       const newIds = quote.rooms
         .map(room => room.id)
         .filter(id => !previous.includes(id));
+      if (newIds.length === 0 && existing.length === previous.length) {
+        return previous;
+      }
       return [...newIds, ...existing];
     });
   }, [quote.rooms]);
@@ -881,6 +899,7 @@ export default function QuoteScreen() {
 
   useEffect(() => {
     setRoomGuests(previous => {
+      let changed = false;
       const next = { ...previous };
 
       quote.rooms.forEach(room => {
@@ -890,16 +909,18 @@ export default function QuoteScreen() {
             adults: roomData.adults ?? 1,
             children: roomData.children ?? 0,
           };
+          changed = true;
         }
       });
 
       Object.keys(next).forEach(id => {
         if (!quote.rooms.some(room => room.id === id)) {
           delete next[id];
+          changed = true;
         }
       });
 
-      return next;
+      return changed ? next : previous;
     });
   }, [quote.rooms]);
 
