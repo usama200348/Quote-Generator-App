@@ -19,6 +19,7 @@ const initialQuote: QuoteState = {
       rate: 100,
       quantity: 1,
       pricingType: 'perRoom',
+      displayNumber: 1,
     },
   ],
   currency: getCurrency('USD'),
@@ -48,21 +49,29 @@ export function useQuoteState() {
   }, []);
 
   const addRoom = useCallback(() => {
-    const newRoom: Room = {
-      id: Date.now().toString(),
-      name: 'Standard Room',
-      rate: 100,
-      quantity: 1,
-      pricingType: 'perRoom',
-    };
+    setQuote(current => {
+      const maxDisplayNumber = current.rooms.reduce(
+        (max, r) => Math.max(max, r.displayNumber ?? 1),
+        0
+      );
+      
+      const newRoom: Room = {
+        id: `room_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+        name: 'Standard Room',
+        rate: 100,
+        quantity: 1,
+        pricingType: 'perRoom',
+        displayNumber: maxDisplayNumber + 1,
+      };
 
-    setQuote(current => ({
-      ...current,
-      rooms: [
-        ...current.rooms,
-        newRoom,
-      ],
-    }));
+      return {
+        ...current,
+        rooms: [
+          newRoom,
+          ...current.rooms,
+        ],
+      };
+    });
   }, []);
 
   const updateRoom = useCallback((id: string, updates: Partial<Room>) => {
@@ -92,7 +101,8 @@ export function useQuoteState() {
       rooms: [
         {
           ...initialQuote.rooms[0],
-          id: Date.now().toString(),
+          id: `room_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          displayNumber: 1,
         },
       ],
     });

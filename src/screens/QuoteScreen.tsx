@@ -1,21 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Animated,
-  Easing,
-  KeyboardAvoidingView,
-  LayoutAnimation,
-  Linking,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  UIManager,
-  View,
-  FlatList,
-} from 'react-native';
+import { Animated,Easing,KeyboardAvoidingView,LayoutAnimation,Linking,Modal,Platform,Pressable,ScrollView,StyleSheet,Text,TextInput,UIManager,View,FlatList,} from 'react-native';
 import Toast from 'react-native-toast-message';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -909,11 +893,12 @@ const RoomCardItem = React.memo(function RoomCardItem({
             </Text>
           </View>
 
-          <View style={styles.roomHeaderTitle}>
-            <Text style={styles.roomTitle}>Room {displayRoomNumber}</Text>
-            <Text style={styles.roomSubtitle}>Accommodation</Text>
-          </View>
-
+        <View style={styles.roomHeaderTitle}>
+  <Text style={styles.roomTitle}>
+    {(room.name || 'Room').replace(/\s+Room$/i, '')}
+  </Text>
+  <Text style={styles.roomSubtitle}>Accommodation</Text>
+</View>
           {totalRoomsCount > 1 && (
             <AnimatedButton
               onPress={() => onRemoveRoom(room.id)}
@@ -1162,26 +1147,12 @@ export default function QuoteScreen() {
   const [visibleRoomCount, setVisibleRoomCount] = useState(ROOMS_PAGE_SIZE);
   const [isLoadingMoreRooms, setIsLoadingMoreRooms] = useState(false);
 
-  // Room display identity is intentionally separate from array index.
-  const roomNumbersRef = useRef<Record<string, number>>(
-    Object.fromEntries(quote.rooms.map((room, index) => [room.id, index + 1])),
-  );
-
-  const nextRoomNumberRef = useRef(quote.rooms.length + 1);
-
   const [roomOrder, setRoomOrder] = useState<string[]>(() =>
     quote.rooms.map(room => room.id),
   );
 
   useEffect(() => {
     const currentIds = new Set(quote.rooms.map(room => room.id));
-
-    quote.rooms.forEach(room => {
-      if (!roomNumbersRef.current[room.id]) {
-        roomNumbersRef.current[room.id] = nextRoomNumberRef.current;
-        nextRoomNumberRef.current += 1;
-      }
-    });
 
     setRoomOrder(previous => {
       const existing = previous.filter(id => currentIds.has(id));
@@ -1337,19 +1308,7 @@ export default function QuoteScreen() {
     [buildRoomGuestAllocation, quote.rooms, updateRoom],
   );
 
-  const previousRoomCountRef = useRef(quote.rooms.length);
 
-  useEffect(() => {
-    if (previousRoomCountRef.current === quote.rooms.length) return;
-    previousRoomCountRef.current = quote.rooms.length;
-
-    syncRoomGuestsToQuoteGuests(
-      quote.guests.adults,
-      quote.guests.children,
-      quote.rooms,
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quote.rooms.length]);
 
   const totalNights = useMemo(() => {
     const start = parseDate(quote.checkIn);
@@ -1858,7 +1817,7 @@ export default function QuoteScreen() {
       item: Room;
       index: number;
     }) => {
-      const displayRoomNumber = roomNumbersRef.current[room.id] ?? index + 1;
+      const displayRoomNumber = room.displayNumber ?? index + 1;
       const roomGuestData = getRoomGuests(room);
 
       return (
@@ -2117,8 +2076,7 @@ export default function QuoteScreen() {
               totalNights > 0
                 ? room.rate * room.quantity * totalNights * guestMultiplier
                 : 0;
-            const displayRoomNumber =
-              roomNumbersRef.current[room.id] ?? index + 1;
+            const displayRoomNumber = room.displayNumber ?? index + 1;
 
             return (
               <View key={room.id} style={styles.quoteRoomCard}>
@@ -2309,7 +2267,7 @@ export default function QuoteScreen() {
           <View style={styles.brandRow}>
             <AnimatedLogo />
             <View>
-              <Text style={styles.brandTitle}>Quote Generator</Text>
+              <Text style={styles.brandTitle}>Stay Quote</Text>
               <Text style={styles.brandSubtitle}>HOSPITALITY SUITE</Text>
             </View>
           </View>

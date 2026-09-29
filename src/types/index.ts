@@ -12,6 +12,7 @@ export type Room = {
   rate: number;
   quantity: number;
   pricingType: PricingType;
+  displayNumber?: number;
 };
 
 export type Currency = {

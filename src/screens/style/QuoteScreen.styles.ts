@@ -2,9 +2,9 @@ import { Platform, StyleSheet } from 'react-native';
 
 export const COLORS = {
   screenBg: '#F2F7F4',
-  barBg: '#151C18',
-  accent: '#16733F',
-  labelIdle: '#9BA8A0',
+  barBg: '#2E8B57',
+  accent: '#2E8B57',
+  labelIdle: '#B8DFC9',
   white: '#FFFFFF',
 };
 
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   // Bottom Tab Bar (No 01, 02, 03 numbers!)
   // -------------------------------------------------------------
   bottomTabBar: {
-    backgroundColor: COLORS.screenBg,
+    backgroundColor: COLORS.barBg,
     paddingTop: 15,
     paddingBottom: Platform.OS === 'ios' ? 14 : 10,
     overflow: 'visible',
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     backgroundColor: COLORS.white,
     borderWidth: 5,
-    borderColor: COLORS.screenBg,
+    borderColor: COLORS.barBg,
     shadowColor: '#10291D',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
