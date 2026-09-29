@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated,Easing,KeyboardAvoidingView,LayoutAnimation,Linking,Modal,Platform,Pressable,ScrollView,StyleSheet,Text,TextInput,UIManager,View,FlatList,} from 'react-native';
+import {ActivityIndicator,Animated,Easing,FlatList,KeyboardAvoidingView,LayoutAnimation,Linking,Modal,Platform,Pressable,ScrollView,StyleSheet,Text,TextInput,UIManager,View} from 'react-native';
 import Toast from 'react-native-toast-message';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useQuoteState } from '../hooks/useQuoteState';
-import { Room } from '../types';
+import { useCurrencies, FALLBACK_CURRENCIES } from '../hooks/useCurrencies';
+import { useCurrencyRates } from '../hooks/useCurrencyRates';
+import { Room, PackageType } from '../types';
 import { getDefaultRate } from '../lib/roomRates';
 import styles, { COLORS } from './style/QuoteScreen.styles';
 import { getCurrency } from '../lib/currencies';
@@ -59,39 +61,14 @@ function Icon({
   );
 }
 
-const CURRENCIES: CurrencyOption[] = [
-  { code: 'USD', name: 'US Dollar', symbol: '$' },
-  { code: 'EUR', name: 'Euro', symbol: '€' },
-  { code: 'GBP', name: 'British Pound', symbol: '£' },
-  { code: 'PKR', name: 'Pakistani Rupee', symbol: '₨' },
-  { code: 'AED', name: 'UAE Dirham', symbol: 'د.إ' },
-  { code: 'SAR', name: 'Saudi Riyal', symbol: '﷼' },
-  { code: 'CAD', name: 'Canadian Dollar', symbol: 'CA$' },
-  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
+
+const PACKAGE_OPTIONS = ['Bed & Breakfast','Half-board','Full-board','Custom',] as const;
+const TABS: {key: TabKey;label: string;number: string;icon: IconName;}[] = [
+  { key: 'stay', label: 'Stay', number: '01', icon: 'calendar-month-outline' },
+  { key: 'rooms', label: 'Rooms', number: '02', icon: 'bed-outline' },
+  { key: 'pricing', label: 'Pricing', number: '03', icon: 'cash-multiple' },
+  { key: 'quote', label: 'Quote', number: '04', icon: 'file-document-outline' },
 ];
-
-const EXCHANGE_RATES: Record<string, number> = {
-  USD: 1,
-  EUR: 0.85,
-  GBP: 0.74,
-  PKR: 280,
-  AED: 3.67,
-  SAR: 3.75,
-  CAD: 1.35,
-  AUD: 1.52,
-};
-
-const TABS: {
-  key: TabKey;
-  label: string;
-  number: string;
-  icon: IconName;
-}[] = [
-    { key: 'stay', label: 'Stay', number: '01', icon: 'calendar-month-outline' },
-    { key: 'rooms', label: 'Rooms', number: '02', icon: 'bed-outline' },
-    { key: 'pricing', label: 'Pricing', number: '03', icon: 'cash-multiple' },
-    { key: 'quote', label: 'Quote', number: '04', icon: 'file-document-outline' },
-  ];
 
 const PRESET_ROOMS = ['Standard Room', 'Deluxe Room', 'Suite', 'Family Room', 'Executive Room'];
 const ROOMS_PAGE_SIZE = 3;
@@ -454,12 +431,6 @@ const Counter = React.memo(function Counter({
   );
 });
 
-function formatMoney(amount: number, currency: string) {
-  const currencyData = CURRENCIES.find(item => item.code === currency);
-  const symbol = currencyData?.symbol || currency;
-  return `${symbol}${amount.toFixed(2)}`;
-}
-
 const SummaryRow = React.memo(function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.summaryRow}>
@@ -651,7 +622,6 @@ function CalendarModal({
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     }).start();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, field]);
 
   const closeCalendar = () => {
@@ -855,6 +825,8 @@ interface RoomCardItemProps {
     rate: number;
     quantity: number;
     pricingType: 'perRoom' | 'perGuest';
+    packageType?: PackageType;
+    customPackageType?: string;
     adults?: number;
     children?: number;
   };
@@ -865,6 +837,8 @@ interface RoomCardItemProps {
   totalRoomsCount: number;
   onUpdateRoom: (id: string, updates: any) => void;
   onRemoveRoom: (id: string) => void;
+  onOpenPackageModal: (room: Room) => void;
+  getPackageDisplayName: (room: Room) => string;
   onUpdateRoomGuestCount: (
     room: any,
     field: keyof RoomGuestValues,
@@ -881,6 +855,8 @@ const RoomCardItem = React.memo(function RoomCardItem({
   totalRoomsCount,
   onUpdateRoom,
   onRemoveRoom,
+  onOpenPackageModal,
+  getPackageDisplayName,
   onUpdateRoomGuestCount,
 }: RoomCardItemProps) {
   return (
@@ -893,12 +869,12 @@ const RoomCardItem = React.memo(function RoomCardItem({
             </Text>
           </View>
 
-        <View style={styles.roomHeaderTitle}>
-  <Text style={styles.roomTitle}>
-    {(room.name || 'Room').replace(/\s+Room$/i, '')}
-  </Text>
-  <Text style={styles.roomSubtitle}>Accommodation</Text>
-</View>
+          <View style={styles.roomHeaderTitle}>
+            <Text style={styles.roomTitle}>
+              {(room.name || 'Room').replace(/\s+Room$/i, '')}
+            </Text>
+            <Text style={styles.roomSubtitle}>Accommodation</Text>
+          </View>
           {totalRoomsCount > 1 && (
             <AnimatedButton
               onPress={() => onRemoveRoom(room.id)}
@@ -922,6 +898,24 @@ const RoomCardItem = React.memo(function RoomCardItem({
             />
           </View>
 
+          <View style={styles.halfColumn}>
+            <Text style={styles.fieldLabel}>Package Type</Text>
+            <Pressable
+              onPress={() => onOpenPackageModal(room as Room)}
+              style={packageStyles.packageSelector}
+            >
+              <Text
+                numberOfLines={1}
+                style={packageStyles.packageSelectorText}
+              >
+                {getPackageDisplayName(room as Room)}
+              </Text>
+              <Icon name="chevron-down" size={18} color="#16733F" />
+            </Pressable>
+          </View>
+        </View>
+
+        <View style={styles.twoColumns}>
           <View style={styles.halfColumn}>
             <Text style={styles.fieldLabel}>Nightly Rate</Text>
             <View style={styles.rateInputContainer}>
@@ -1127,7 +1121,122 @@ const RoomCardItem = React.memo(function RoomCardItem({
   );
 });
 
+const packageStyles = StyleSheet.create({
+  packageSelector: {
+    minHeight: 48,
+    borderWidth: 1,
+    borderColor: '#D8E2DC',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+  },
+  packageSelectorText: {
+    flex: 1,
+    color: '#26352E',
+    fontSize: 14,
+    marginRight: 8,
+  },
+  packageModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  packageModal: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    padding: 20,
+    maxHeight: '80%',
+  },
+  packageModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  packageModalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#26352E',
+  },
+  packageModalSubtitle: {
+    marginTop: 4,
+    fontSize: 13,
+    lineHeight: 18,
+    color: '#718078',
+  },
+  packageModalClose: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F0F7F3',
+  },
+  packageModalCloseText: {
+    fontSize: 25,
+    lineHeight: 28,
+    color: '#26352E',
+  },
+  packageOption: {
+    minHeight: 52,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    marginBottom: 8,
+    backgroundColor: '#F4F8F5',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  packageOptionActive: {
+    backgroundColor: '#E6F4EC',
+    borderWidth: 1,
+    borderColor: '#16733F',
+  },
+  packageOptionText: {
+    fontSize: 15,
+    color: '#26352E',
+  },
+  packageOptionTextActive: {
+    color: '#16733F',
+    fontWeight: '700',
+  },
+  customPackageSection: {
+    marginTop: 8,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E5ECE8',
+  },
+  customPackageInput: {
+    minHeight: 48,
+    borderWidth: 1,
+    borderColor: '#D8E2DC',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    color: '#26352E',
+    backgroundColor: '#FFFFFF',
+  },
+  savePackageButton: {
+    minHeight: 46,
+    marginTop: 10,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#16733F',
+  },
+  savePackageButtonText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+});
+
 export default function QuoteScreen() {
+  // ---------------------------------------------------------------------------
+  // ALL REACT HOOKS AT TOP LEVEL (STRICT ORDER)
+  // ---------------------------------------------------------------------------
   const {
     quote,
     updateQuote,
@@ -1137,7 +1246,14 @@ export default function QuoteScreen() {
     removeRoom,
   } = useQuoteState();
 
-  const [targetCurrency, setTargetCurrency] = useState('PKR');
+const { currencies: apiCurrencies, loading: currenciesLoading } = useCurrencies();
+
+const {
+  rates,
+  loading: ratesLoading,
+} = useCurrencyRates(quote.currency.code);
+
+  const [targetCurrency, setTargetCurrency] = useState('USD');
   const [tone, setTone] = useState<Tone>('friendly');
   const [discountType, setDiscountType] = useState<DiscountType>('percent');
   const [activeTab, setActiveTab] = useState<TabKey>('stay');
@@ -1149,6 +1265,25 @@ export default function QuoteScreen() {
 
   const [roomOrder, setRoomOrder] = useState<string[]>(() =>
     quote.rooms.map(room => room.id),
+  );
+
+  const [roomGuests, setRoomGuests] = useState<Record<string, RoomGuestValues>>({});
+
+  // Package Type selection state
+  const [packageRoomId, setPackageRoomId] = useState<string | null>(null);
+  const [customPackageText, setCustomPackageText] = useState('');
+
+  const currenciesList: CurrencyOption[] = useMemo(() => {
+    return apiCurrencies.length > 0 ? apiCurrencies : FALLBACK_CURRENCIES;
+  }, [apiCurrencies]);
+
+  const formatMoney = useCallback(
+    (amount: number, currencyCode: string) => {
+      const currencyData = currenciesList.find(item => item.code === currencyCode);
+      const symbol = currencyData?.symbol || currencyCode;
+      return `${symbol}${amount.toFixed(2)}`;
+    },
+    [currenciesList],
   );
 
   useEffect(() => {
@@ -1176,8 +1311,6 @@ export default function QuoteScreen() {
 
   const hasMoreRooms = visibleRoomCount < quote.rooms.length;
   const totalGuests = quote.guests.adults + quote.guests.children;
-
-  const [roomGuests, setRoomGuests] = useState<Record<string, RoomGuestValues>>({});
 
   useEffect(() => {
     setRoomGuests(previous => {
@@ -1308,8 +1441,6 @@ export default function QuoteScreen() {
     [buildRoomGuestAllocation, quote.rooms, updateRoom],
   );
 
-
-
   const totalNights = useMemo(() => {
     const start = parseDate(quote.checkIn);
     const end = parseDate(quote.checkOut);
@@ -1338,9 +1469,8 @@ export default function QuoteScreen() {
   const taxAmount = subtotal * (quote.tax / 100);
   const finalTotal = subtotal + taxAmount;
 
-  const exchangeRate =
-    EXCHANGE_RATES[targetCurrency] / EXCHANGE_RATES[quote.currency.code];
-  const convertedTotal = finalTotal * exchangeRate;
+  const exchangeRate = rates[targetCurrency] ?? 0;
+const convertedTotal = finalTotal * exchangeRate;
 
   const datesSelected = Boolean(quote.checkIn && quote.checkOut && totalNights > 0);
 
@@ -1481,74 +1611,230 @@ export default function QuoteScreen() {
     });
   };
 
-  const selectCurrency = useCallback((currencyCode: string) => {
-    if (currencyModalMode === 'base') {
-      const selectedCurrencyObj = getCurrency(currencyCode);
-      const currencyOption = CURRENCIES.find(c => c.code === currencyCode);
-      updateQuote({
-        currency: {
-          code: currencyCode,
-          name: currencyOption?.name || selectedCurrencyObj.name,
-          symbol: currencyOption?.symbol || selectedCurrencyObj.symbol,
-        },
-      });
-    } else {
-      setTargetCurrency(currencyCode);
-    }
-    setCurrencyModalMode(null);
-  }, [currencyModalMode, updateQuote]);
-
-  const message = useMemo(() => {
-    if (!datesSelected || finalTotal <= 0) {
-      return 'Fill in dates and room details to preview your quote message...';
+  const getPackageDisplayName = useCallback((room: Room) => {
+    if (room.packageType === 'Custom') {
+      return room.customPackageType?.trim() || 'Custom';
     }
 
-    const dateText = `${quote.checkIn} to ${quote.checkOut}`;
-    const totalRooms = quote.rooms.length;
-    const roomText = `${totalRooms} ${totalRooms === 1 ? 'room' : 'rooms'}`;
+    return room.packageType || 'Bed & Breakfast';
+  }, []);
 
-    if (tone === 'formal') {
-      return (
-        `Dear Guest,\n\n` +
-        `Thank you for your inquiry. ` +
-        `Your quote for ${dateText} ` +
-        `(${totalNights} nights) ` +
-        `for ${totalGuests} guests across ${roomText} ` +
-        `is ${formatMoney(finalTotal, quote.currency.code)}.\n\n` +
-        `Please contact us to finalize your reservation.\n\n` +
-        `Warm regards,\nReservations Team`
-      );
-    }
-
-    if (tone === 'casual') {
-      return (
-        `Hey! Your stay from ${dateText} ` +
-        `(${roomText}) ` +
-        `comes out to ${formatMoney(finalTotal, quote.currency.code)}. Hit us up to lock it in!`
-      );
-    }
-
-    return (
-      `Hi there! We'd love to host you. ` +
-      `For your stay from ${dateText} ` +
-      `(${totalNights} nights) for ` +
-      `${totalGuests} guests across ${roomText}, the total is ` +
-      `${formatMoney(finalTotal, quote.currency.code)} ` +
-      `(~${formatMoney(convertedTotal, targetCurrency)}). Let us know if you'd like to book!`
+  const openPackageModal = useCallback((room: Room) => {
+    setPackageRoomId(room.id);
+    setCustomPackageText(
+      room.packageType === 'Custom' ? room.customPackageType || '' : '',
     );
-  }, [
-    datesSelected,
-    finalTotal,
-    quote.checkIn,
-    quote.checkOut,
-    quote.currency.code,
-    quote.rooms.length,
-    tone,
-    totalNights,
-    totalGuests,
+  }, []);
+
+  const closePackageModal = useCallback(() => {
+    setPackageRoomId(null);
+    setCustomPackageText('');
+  }, []);
+
+  const selectPackageType = useCallback(
+    (packageType: PackageType) => {
+      if (!packageRoomId) return;
+
+      if (packageType === 'Custom') {
+        updateRoom(packageRoomId, {
+          packageType: 'Custom',
+          customPackageType: '',
+        });
+        setCustomPackageText('');
+        return;
+      }
+
+      updateRoom(packageRoomId, {
+        packageType,
+        customPackageType: undefined,
+      });
+
+      closePackageModal();
+    },
+    [packageRoomId, updateRoom, closePackageModal],
+  );
+
+  const saveCustomPackage = useCallback(() => {
+    if (!packageRoomId) return;
+
+    const value = customPackageText.trim();
+
+    if (!value) {
+      Toast.show({
+        type: 'error',
+        text1: 'Package Type Required',
+        text2: 'Please enter a custom package type.',
+        position: 'top',
+        visibilityTime: 2200,
+        topOffset: 60,
+      });
+      return;
+    }
+
+    updateRoom(packageRoomId, {
+      packageType: 'Custom',
+      customPackageType: value,
+    });
+
+    closePackageModal();
+  }, [packageRoomId, customPackageText, updateRoom, closePackageModal]);
+
+  const selectCurrency = useCallback(
+    (currencyCode: string) => {
+      if (currencyModalMode === 'base') {
+        const selectedCurrencyObj = getCurrency(currencyCode);
+        const currencyOption = currenciesList.find(c => c.code === currencyCode);
+        updateQuote({
+          currency: {
+            code: currencyCode,
+            name: currencyOption?.name || selectedCurrencyObj.name,
+            symbol: currencyOption?.symbol || selectedCurrencyObj.symbol,
+          },
+        });
+      } else {
+        setTargetCurrency(currencyCode);
+      }
+      setCurrencyModalMode(null);
+    },
+    [currencyModalMode, currenciesList, updateQuote],
+  );
+
+const message = useMemo(() => {
+  if (!datesSelected || finalTotal <= 0) {
+    return 'Fill in dates and room details to preview your quote message...';
+  }
+
+  const formatDateForMessage = (date: string) => {
+    const parsed = parseDate(date);
+
+    if (!parsed) return date;
+
+    return parsed.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
+
+  const checkInText = formatDateForMessage(quote.checkIn);
+  const checkOutText = formatDateForMessage(quote.checkOut);
+
+  const dateText = `${checkInText} to ${checkOutText}`;
+
+  const guestText = `${totalGuests} ${
+    totalGuests === 1 ? 'guest' : 'guests'
+  }`;
+
+  // Show all room names/packages if there are multiple rooms.
+  const roomTypeText = quote.rooms
+    .map(room => room.name || 'Room')
+    .join(', ');
+
+  const packageTypeText = quote.rooms
+    .map(room => getPackageDisplayName(room))
+    .join(', ');
+
+  const baseCurrency = quote.currency.code;
+
+  const roomSubtotalText = formatMoney(roomSubtotal, baseCurrency);
+  const discountText = formatMoney(discountAmount, baseCurrency);
+  const afterDiscountText = formatMoney(subtotal, baseCurrency);
+  const taxText = formatMoney(taxAmount, baseCurrency);
+  const finalTotalText = formatMoney(finalTotal, baseCurrency);
+
+  const convertedTotalText = formatMoney(
     convertedTotal,
     targetCurrency,
-  ]);
+  );
+
+  const depositAmount = finalTotal * 0.30;
+
+  const depositText = formatMoney(
+    depositAmount,
+    baseCurrency,
+  );
+
+  const totalLine = `${finalTotalText} (${convertedTotalText})`;
+
+  if (tone === 'formal') {
+    return (
+      `Dear Guest,\n\n` +
+      `Thank you for your inquiry. Your quote for ` +
+      `${totalNights} ${totalNights === 1 ? 'night' : 'nights'} ` +
+      `(${dateText}) for ${guestText} is ${totalLine}.\n\n` +
+      `Room type: ${roomTypeText}.\n` +
+      `Package type: ${packageTypeText}.\n\n` +
+      `Breakdown:\n` +
+      `Room subtotal: ${roomSubtotalText}\n` +
+      `Discount: - ${discountText}\n` +
+      `After discount: ${afterDiscountText}\n` +
+      `Taxes: + ${taxText}\n` +
+      `Total: ${totalLine}.\n\n` +
+      `To confirm your reservation, we require a 30% deposit ` +
+      `of ${depositText}. Please use the payment link below ` +
+      `to pay now and confirm your booking.\n\n` +
+      `Warm regards,\n` +
+      `Reservations Team`
+    );
+  }
+
+  if (tone === 'casual') {
+    return (
+      `Hey! 👋\n\n` +
+      `Here's your stay quote for ${totalNights} ` +
+      `${totalNights === 1 ? 'night' : 'nights'} ` +
+      `(${dateText}) for ${guestText}.\n\n` +
+      `Room type: ${roomTypeText}\n` +
+      `Package type: ${packageTypeText}\n\n` +
+      `Breakdown:\n` +
+      `Room subtotal: ${roomSubtotalText}\n` +
+      `Discount: - ${discountText}\n` +
+      `After discount: ${afterDiscountText}\n` +
+      `Taxes: + ${taxText}\n` +
+      `Total: ${totalLine}\n\n` +
+      `A 30% deposit of ${depositText} is required ` +
+      `to confirm your reservation.\n\n` +
+      `Let us know if you'd like to book!`
+    );
+  }
+
+  // Friendly
+  return (
+    `Hi there! We'd love to host you. 😊\n\n` +
+    `Your quote is for ${totalNights} ` +
+    `${totalNights === 1 ? 'night' : 'nights'} ` +
+    `(${dateText}) for ${guestText}.\n\n` +
+    `Room type: ${roomTypeText}\n` +
+    `Package type: ${packageTypeText}\n\n` +
+    `Breakdown:\n` +
+    `Room subtotal: ${roomSubtotalText}\n` +
+    `Discount: - ${discountText}\n` +
+    `After discount: ${afterDiscountText}\n` +
+    `Taxes: + ${taxText}\n` +
+    `Total: ${totalLine}\n\n` +
+    `To confirm your reservation, a 30% deposit of ` +
+    `${depositText} is required.\n\n` +
+    `We look forward to hosting you!`
+  );
+}, [
+  datesSelected,
+  finalTotal,
+  quote.checkIn,
+  quote.checkOut,
+  quote.currency.code,
+  quote.rooms,
+  tone,
+  getPackageDisplayName,
+  totalNights,
+  totalGuests,
+  roomSubtotal,
+  discountAmount,
+  subtotal,
+  taxAmount,
+  convertedTotal,
+  targetCurrency,
+  formatMoney,
+]);
 
   const copyMessage = useCallback(() => {
     if (!datesSelected || finalTotal <= 0) {
@@ -1805,7 +2091,6 @@ export default function QuoteScreen() {
     (id: string) => {
       handleRemoveRoom(id);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [quote.rooms.length],
   );
 
@@ -1830,6 +2115,8 @@ export default function QuoteScreen() {
           totalRoomsCount={quote.rooms.length}
           onUpdateRoom={handleUpdateRoom}
           onRemoveRoom={handleRemoveRoomCallback}
+          onOpenPackageModal={openPackageModal}
+          getPackageDisplayName={getPackageDisplayName}
           onUpdateRoomGuestCount={updateRoomGuestCount}
         />
       );
@@ -1840,6 +2127,8 @@ export default function QuoteScreen() {
       quote.rooms.length,
       handleUpdateRoom,
       handleRemoveRoomCallback,
+      openPackageModal,
+      getPackageDisplayName,
       updateRoomGuestCount,
     ],
   );
@@ -1869,7 +2158,7 @@ export default function QuoteScreen() {
         </View>
       </>
     ),
-    [isLoadingMoreRooms, roomSubtotal, quote.currency.code, totalNights],
+    [isLoadingMoreRooms, roomSubtotal, quote.currency.code, totalNights, formatMoney],
   );
 
   const renderPricingTab = () => (
@@ -1972,8 +2261,7 @@ export default function QuoteScreen() {
             <Text style={styles.fieldLabel}>Base Currency</Text>
             <AnimatedButton
               style={styles.selectBox}
-              onPress={() => setCurrencyModalMode('base')}
-            >
+              onPress={() => setCurrencyModalMode('base')} >
               <Text style={styles.selectText}>{quote.currency.code}</Text>
               <Icon name="chevron-down" size={19} color="#16733F" />
             </AnimatedButton>
@@ -2052,9 +2340,6 @@ export default function QuoteScreen() {
             </Text>
           </View>
 
-          <View style={styles.summaryCheck}>
-            <Icon name="check" size={18} color="#16733F" />
-          </View>
         </View>
 
         <View style={styles.quoteRoomsSection}>
@@ -2210,7 +2495,6 @@ export default function QuoteScreen() {
         </View>
 
         <View style={styles.messageBox}>
-
           <Text
             style={[
               styles.messageText,
@@ -2401,39 +2685,134 @@ export default function QuoteScreen() {
               </Pressable>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {CURRENCIES.map(currency => {
-                const selected =
-                  currencyModalMode === 'base'
-                    ? quote.currency.code === currency.code
-                    : targetCurrency === currency.code;
-                return (
-                  <Pressable
-                    key={currency.code}
-                    onPress={() => selectCurrency(currency.code)}
+            {currenciesLoading ? (
+              <View style={{ padding: 24, alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#16733F" />
+              </View>
+            ) : (
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {currenciesList.map(currency => {
+                  const selected =
+                    currencyModalMode === 'base'
+                      ? quote.currency.code === currency.code
+                      : targetCurrency === currency.code;
+                  return (
+                    <Pressable
+                      key={currency.code}
+                      onPress={() => selectCurrency(currency.code)}
+                      style={[
+                        styles.currencyOption,
+                        selected && styles.currencyOptionActive,
+                      ]}
+                    >
+                      <View style={styles.currencySymbolBox}>
+                        <Text style={styles.currencySymbol}>{currency.symbol}</Text>
+                      </View>
+
+                      <View style={styles.currencyOptionContent}>
+                        <Text style={styles.currencyCode}>{currency.code}</Text>
+                        <Text style={styles.currencyName}>{currency.name}</Text>
+                      </View>
+
+                      {selected && (
+                        <View style={styles.selectedCheck}>
+                          <Icon name="check" size={16} color="#FFFFFF" />
+                        </View>
+                      )}
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={packageRoomId !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={closePackageModal}
+      >
+        <View style={packageStyles.packageModalOverlay}>
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={closePackageModal}
+          />
+
+          <View style={packageStyles.packageModal}>
+            <View style={packageStyles.packageModalHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={packageStyles.packageModalTitle}>Package Type</Text>
+                <Text style={packageStyles.packageModalSubtitle}>
+                  Select a meal package or enter your own.
+                </Text>
+              </View>
+
+              <Pressable
+                onPress={closePackageModal}
+                style={packageStyles.packageModalClose}
+              >
+                <Text style={packageStyles.packageModalCloseText}>×</Text>
+              </Pressable>
+            </View>
+
+            {PACKAGE_OPTIONS.map(option => {
+              const selectedRoom = quote.rooms.find(
+                room => room.id === packageRoomId,
+              );
+
+              const isSelected = selectedRoom?.packageType === option;
+
+              return (
+                <Pressable
+                  key={option}
+                  onPress={() => selectPackageType(option)}
+                  style={[
+                    packageStyles.packageOption,
+                    isSelected && packageStyles.packageOptionActive,
+                  ]}
+                >
+                  <Text
                     style={[
-                      styles.currencyOption,
-                      selected && styles.currencyOptionActive,
+                      packageStyles.packageOptionText,
+                      isSelected && packageStyles.packageOptionTextActive,
                     ]}
                   >
-                    <View style={styles.currencySymbolBox}>
-                      <Text style={styles.currencySymbol}>{currency.symbol}</Text>
-                    </View>
+                    {option}
+                  </Text>
 
-                    <View style={styles.currencyOptionContent}>
-                      <Text style={styles.currencyCode}>{currency.code}</Text>
-                      <Text style={styles.currencyName}>{currency.name}</Text>
-                    </View>
+                  {isSelected && (
+                    <Icon name="check" size={19} color="#16733F" />
+                  )}
+                </Pressable>
+              );
+            })}
 
-                    {selected && (
-                      <View style={styles.selectedCheck}>
-                        <Icon name="check" size={16} color="#FFFFFF" />
-                      </View>
-                    )}
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
+            {quote.rooms.find(room => room.id === packageRoomId)
+              ?.packageType === 'Custom' && (
+              <View style={packageStyles.customPackageSection}>
+                <Text style={styles.fieldLabel}>Custom Package</Text>
+
+                <TextInput
+                  value={customPackageText}
+                  onChangeText={setCustomPackageText}
+                  placeholder="e.g. Romantic Dinner Package"
+                  placeholderTextColor="#9AA6A0"
+                  style={packageStyles.customPackageInput}
+                  autoFocus
+                />
+
+                <AnimatedButton
+                  onPress={saveCustomPackage}
+                  style={packageStyles.savePackageButton}
+                >
+                  <Text style={packageStyles.savePackageButtonText}>
+                    Save Package
+                  </Text>
+                </AnimatedButton>
+              </View>
+            )}
           </View>
         </View>
       </Modal>

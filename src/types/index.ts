@@ -1,5 +1,11 @@
 export type PricingType = 'perRoom' | 'perGuest';
 
+export type PackageType =
+  | 'Bed & Breakfast'
+  | 'Half-board'
+  | 'Full-board'
+  | 'Custom';
+
 export type GuestCounts = {
   adults: number;
   children: number;
@@ -12,6 +18,8 @@ export type Room = {
   rate: number;
   quantity: number;
   pricingType: PricingType;
+  packageType: PackageType;
+  customPackageType?: string;
   displayNumber?: number;
 };
 
@@ -25,11 +33,8 @@ export type QuoteState = {
   destination: string;
   checkIn: string;
   checkOut: string;
-
   guests: GuestCounts;
-
   rooms: Room[];
-
   currency: Currency;
   discount: number;
   tax: number;

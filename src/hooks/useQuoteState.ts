@@ -55,14 +55,15 @@ export function useQuoteState() {
         0
       );
       
-      const newRoom: Room = {
-        id: `room_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-        name: 'Standard Room',
-        rate: 100,
-        quantity: 1,
-        pricingType: 'perRoom',
-        displayNumber: maxDisplayNumber + 1,
-      };
+   const newRoom: Room = {
+  id: `room_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+  name: 'Standard Room',
+  rate: 100,
+  quantity: 1,
+  pricingType: 'perRoom',
+  packageType: 'Bed & Breakfast',
+  displayNumber: maxDisplayNumber + 1,
+};
 
       return {
         ...current,
